@@ -1,7 +1,7 @@
-import { Col, Row } from "antd"
-import Search from "antd/lib/input/Search"
+import { Col } from "antd"
 import { CaretDownOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons"
 import { WrapperHeader, WrapperHeaderAccout, WrapperTextHeader, WrapperTextHeaderSmall } from "./style"
+import ButtonInputSearch from "../ButtonSearch/ButtonInputSearch"
 
 function HeaderComponent() {
     return <div>
@@ -9,14 +9,13 @@ function HeaderComponent() {
             <Col span={6}>
                 <WrapperTextHeader>T-STORE</WrapperTextHeader>
             </Col>
-            <Col span={12}> <Search
+            <Col span={12}> <ButtonInputSearch
                 placeholder="input search text"
                 allowClear
-                enterButton="Search"
+                textButton="Search"
                 size="large"
-
             /></Col>
-            <Col span={6} style={{ display: 'flex', gap: '20px' }}>
+            <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <WrapperHeaderAccout>
                     <UserOutlined style={{ fontSize: '40px' }} />
                     <div>
