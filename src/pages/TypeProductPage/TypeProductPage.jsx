@@ -2,15 +2,16 @@ import React, { Fragment } from 'react'
 import NavBarComponent from '../../components/NavBarComponent/NavBarComponent'
 import CardComponent from '../../components/CardComponent/CardComponent'
 import { Col, Pagination, Row } from 'antd'
+import { WrapperNavBar } from './style'
 
 function TypeProductPage() {
     const onChange = () => {
 
     }
     return (
-        <div style={{ padding: '0 120px', background: '#efefef' }}>
+        <div style={{ width: '100%', padding: '0 120px', background: '#efefef' }}>
             <Row style={{ padding: '0 120px', background: '#efefef', flexWrap: 'nowrap', paddingTop: '10px' }}>
-                <Col span={4} style={{ background: '#fff', marginRight: '20px', padding: '10px', borderRadius: '6px' }}><NavBarComponent /></Col>
+                <WrapperNavBar span={4}><NavBarComponent /></WrapperNavBar>
                 <Col span={20}>
                     <Col style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }} >
                         <CardComponent />

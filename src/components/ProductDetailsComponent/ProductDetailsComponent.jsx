@@ -34,7 +34,7 @@ function ProductDetailsComponent() {
                     <span>Giao đến </span>
                     <span className='address'>P. Cà Mau, P. 5, Cà Mau</span>
                 </WrapperProductAddress>
-                <div style={{ fontSize: '20px', color: '#000', fontWeight: 400, margin: '10px 0', borderTop: '2px solid #efefef' }}>Số lương</div>
+                <div style={{ fontSize: '20px', color: '#000', fontWeight: 400, margin: '10px 0', borderTop: '2px solid #efefef' }}>Số lượng</div>
                 <WrapperQuanlityProduct>
                     <Button><PlusOutlined style={{ color: '#000', fontSize: '20px' }} /></Button>
                     <InputNumber style={{ width: '60px' }} min={1} max={10} defaultValue={2} />

@@ -4,12 +4,12 @@ import { WrapperHeader, WrapperHeaderAccout, WrapperTextHeader, WrapperTextHeade
 import ButtonInputSearch from "../ButtonSearch/ButtonInputSearch"
 
 function HeaderComponent() {
-    return <div>
+    return <div style={{ width: '100%' }}>
         <WrapperHeader gutter={16}>
-            <Col span={6}>
+            <Col span={5}>
                 <WrapperTextHeader>T-STORE</WrapperTextHeader>
             </Col>
-            <Col span={12}> <ButtonInputSearch
+            <Col span={13}> <ButtonInputSearch
                 placeholder="input search text"
                 allowClear
                 textButton="Search"
