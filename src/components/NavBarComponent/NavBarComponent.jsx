@@ -44,9 +44,9 @@ function NavBarComponent() {
             <WrapperContent>
                 {renderContent('text', ['Tủ lạnh', 'TV', 'MAYGIAT'])}
             </WrapperContent>
-            <WrapperContent> {renderContent('checkbox', [{ value: 'a', lable: 'A' }, { value: 'b', lable: 'B' }, { value: 'c', lable: 'C' }])}</WrapperContent>
-            <WrapperContent >{renderContent('star', [3, 4, 5])}</WrapperContent>
-            <WrapperContent >{renderContent('price', ['dưới 40.000', 'trên 60.000'])}</WrapperContent>
+            {/* <WrapperContent> {renderContent('checkbox', [{ value: 'a', lable: 'A' }, { value: 'b', lable: 'B' }, { value: 'c', lable: 'C' }])}</WrapperContent> */}
+            {/* <WrapperContent >{renderContent('star', [3, 4, 5])}</WrapperContent>
+            <WrapperContent >{renderContent('price', ['dưới 40.000', 'trên 60.000'])}</WrapperContent> */}
         </div>
     )
 }
