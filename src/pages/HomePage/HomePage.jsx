@@ -5,6 +5,8 @@ import slide1 from '../../assets/images/silde1.png.webp'
 import slide2 from '../../assets/images/slide2.jpg.webp'
 import slide3 from '../../assets/images/slide3.png.webp'
 import slide4 from '../../assets/images/slide4.jpg.webp'
+import CardComponent from "../../components/CardComponent/CardComponent"
+import NavBarComponent from "../../components/NavBarComponent/NavBarComponent"
 const HomePage = () => {
   const arr = ['TV', 'Tủ Lạnh', 'Lap Top']
   return (<>
@@ -16,7 +18,13 @@ const HomePage = () => {
       </WrapperTypeProduct>
     </div>
     <div id="container" style={{ backgroundColor: '#efefef', padding: '0 120px' }}>
-      <SliderComponent arrImages={[slide1, slide2, slide3, slide4]} /></div>
+      <SliderComponent arrImages={[slide1, slide2, slide3, slide4]} />
+      <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <CardComponent />
+      </div>
+      <NavBarComponent />
+    </div>
+
   </>
   )
 
