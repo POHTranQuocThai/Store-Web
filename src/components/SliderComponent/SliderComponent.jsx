@@ -16,7 +16,7 @@ export default function SimpleSlider({ arrImages }) {
     return (
         <Slider {...settings}>
             {arrImages.map((img) => {
-                return <Image src={img} alt="slider" preview={false} width='100%' height='350px' />
+                return <Image key={img} src={img} alt="slider" preview={false} width='100%' height='350px' />
             })}
         </Slider>
     );

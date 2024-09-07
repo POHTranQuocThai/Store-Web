@@ -9,8 +9,6 @@ function InputComponent({ size, placeholder, bordered, style, ...rests }) {
         style={style}
         {...rests}
     />
-
-
 }
 
 export default InputComponent
