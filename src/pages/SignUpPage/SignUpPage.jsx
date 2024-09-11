@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { WrapperContainerLeft, WrapperContainerRight, WrapperTextLight } from '../SignInPage/style'
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import InputForm from '../../components/InputForm/InputForm'
@@ -8,7 +8,8 @@ import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useMutationHooks } from '../../hooks/useMutationHook'
 import * as UserSevice from '../../services/UserService'
-import Loading from '../../components/LoadingComponent/LoadingComponent'
+import { error, success } from '../../components/MessageComponent/MessageComponent'
+
 
 function SignUpPage() {
     const [isShowPassword, setIsShowPassword] = useState(false)
@@ -20,6 +21,7 @@ function SignUpPage() {
     const handleNaigateSignIn = () => {
         navigate('/sign-in')
     }
+
     const handleOnChangeEmail = (value) => {
         setEmail(value)
     }
@@ -32,7 +34,15 @@ function SignUpPage() {
     const mutation = useMutationHooks(
         data => UserSevice.signupUser(data)
     )
-    const { data, isLoading } = mutation
+    const { data, isLoading, isSuccess, isError } = mutation
+    useEffect(() => {
+        if (isSuccess) {
+            success()
+            handleNaigateSignIn()
+        } else if (isError) {
+            error()
+        }
+    }, [isSuccess, isError])
     const handleSignUp = () => {
         mutation.mutate({
             email,
@@ -86,10 +96,10 @@ function SignUpPage() {
                             type={isShowConfirmPassword ? 'text' : 'password'} placeholder={'confirm password'} />
                     </div>
                     {data?.status === 'ERR' && <span style={{ color: 'red' }}>{data?.message}</span>}
-                    <Loading isLoading={isLoading}>
-                        <ButtonComponent textButton={'Đăng Ký'} onClick={handleSignUp} disabled={!email.length || !password.length || !confirmPassword.length}
-                            size={40} styleBtn={{ backgroundColor: 'rgb(255,57,69)', height: '48px', width: '100%', border: 'none', borderRadius: '5px', margin: '26px 0 10px' }} styleTextBtn={{ color: '#fff' }} />
-                    </Loading>
+
+                    <ButtonComponent textButton={'Đăng Ký'} onClick={handleSignUp} disabled={!email.length || !password.length || !confirmPassword.length}
+                        size={40} styleBtn={{ backgroundColor: 'rgb(255,57,69)', height: '48px', width: '100%', border: 'none', borderRadius: '5px', margin: '26px 0 10px' }} styleTextBtn={{ color: '#fff' }} />
+
                     <p>Bạn đã có tài khoản? <WrapperTextLight onClick={handleNaigateSignIn}>Đăng nhập</WrapperTextLight></p>
                 </WrapperContainerLeft>
                 <WrapperContainerRight>
