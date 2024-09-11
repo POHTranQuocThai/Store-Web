@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { WrapperContainerLeft, WrapperContainerRight, WrapperTextLight } from './style'
 import InputForm from '../../components/InputForm/InputForm'
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
@@ -9,12 +9,19 @@ import { useNavigate } from 'react-router-dom'
 import { useMutationHooks } from '../../hooks/useMutationHook'
 import * as UserSevice from '../../services/UserService'
 import Loading from '../../components/LoadingComponent/LoadingComponent'
+import { success } from '../../components/MessageComponent/MessageComponent'
+import { jwtDecode } from 'jwt-decode'
+import { useDispatch } from 'react-redux'
+import { updateUser } from '../../redux/slice/userSlide'
+
 
 function SignInPage() {
     const [isShowPassword, setIsShowPassword] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+
     const handleNavigateSignUp = () => {
         navigate('/sign-up')
     }
@@ -27,7 +34,33 @@ function SignInPage() {
     const mutation = useMutationHooks(
         data => UserSevice.loginUser(data)
     )
-    const { data, isLoading } = mutation
+    const { data, isLoading, isError, isSuccess } = mutation
+    useEffect(() => {
+        if (isSuccess) {
+            success()
+            navigate('/')
+            localStorage.setItem('access_token', data?.access_token)
+            console.log('data', data);
+            console.log('decode', data?.access_token);
+
+            if (data?.access_token) {
+                const decoded = jwtDecode(data?.access_token)
+                console.log('decodeasd', decoded);
+                console.log('decode', decoded?.payload);
+                if (decoded?.id) {
+                    console.log('asdas', decoded.id);
+                    console.log('ass', decoded?.access_token);
+                    handleGetDetailUser(decoded?.id, data?.access_token)
+                }
+            }
+        }
+    }, [isSuccess])
+
+    const handleGetDetailUser = async (id, token) => {
+        const res = await UserSevice.getDetailUser(id, token)
+        console.log("res", res);
+        dispatch(updateUser({ ...res?.data, access_token: token }))
+    }
     const handleSignIn = () => {
         mutation.mutate({
             email,
@@ -57,14 +90,13 @@ function SignInPage() {
                                 )
                             }
                         </span>
-                        <InputForm type={isShowPassword ? 'text' : 'password'} placeholder={'password'} value={password} handleOnChange={handleOnChangePassword} />
+                        <InputForm type={isShowPassword ? 'text' : 'password'} placeholder='password' value={password} handleOnChange={handleOnChangePassword} />
                     </div>
                     {data?.status === 'ERR' && <span style={{ color: 'red' }}>{data?.message}</span>}
 
-                    <Loading isLoading={isLoading}>
-                        <ButtonComponent textButton={'Đăng Nhập'} onClick={handleSignIn} disabled={!email.length || !password.length}
-                            size={40} styleBtn={{ backgroundColor: 'rgb(255,57,69)', height: '48px', width: '100%', border: 'none', borderRadius: '5px', margin: '26px 0 10px' }} styleTextBtn={{ color: '#fff' }} />
-                    </Loading>
+                    <ButtonComponent textButton={'Đăng Nhập'} onClick={handleSignIn} disabled={!email.length || !password.length}
+                        size={40} styleBtn={{ backgroundColor: 'rgb(255,57,69)', height: '48px', width: '100%', border: 'none', borderRadius: '5px', margin: '26px 0 10px' }} styleTextBtn={{ color: '#fff' }} />
+
                     <WrapperTextLight >Quên mật khẩu</WrapperTextLight>
                     <p>Chưa có tài khoản? <WrapperTextLight onClick={handleNavigateSignUp}>Tạo tài khoản</WrapperTextLight></p>
                 </WrapperContainerLeft>
