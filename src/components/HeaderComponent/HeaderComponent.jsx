@@ -11,8 +11,9 @@ function HeaderComponent() {
     const handleNavigateLogin = () => {
         navigate('/sign-in')
     }
-    console.log(user);
+    const handleLogOut = () => {
 
+    }
     return <div style={{ width: '100%' }}>
         <WrapperHeader gutter={16}>
             <Col span={5}>
@@ -27,7 +28,7 @@ function HeaderComponent() {
             <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <WrapperHeaderAccout>
                     <UserOutlined style={{ fontSize: '40px' }} />
-                    {user?.name ? <div>{user.name}</div>
+                    {user?.name ? <div onClick={() => handleLogOut}>{user.name}</div>
                         :
                         <div onClick={handleNavigateLogin} style={{ cursor: 'pointer' }}>
                             <WrapperTextHeaderSmall>Đăng ký/Đăng nhập</WrapperTextHeaderSmall>
