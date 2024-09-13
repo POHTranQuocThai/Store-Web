@@ -39,17 +39,10 @@ function SignInPage() {
         if (isSuccess) {
             success()
             navigate('/')
-            localStorage.setItem('access_token', data?.access_token)
-            console.log('data', data);
-            console.log('decode', data?.access_token);
-
+            localStorage.setItem('access_token', JSON.stringify(data?.access_token))
             if (data?.access_token) {
                 const decoded = jwtDecode(data?.access_token)
-                console.log('decodeasd', decoded);
-                console.log('decode', decoded?.payload);
                 if (decoded?.id) {
-                    console.log('asdas', decoded.id);
-                    console.log('ass', decoded?.access_token);
                     handleGetDetailUser(decoded?.id, data?.access_token)
                 }
             }
