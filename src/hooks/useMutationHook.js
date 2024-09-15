@@ -6,3 +6,4 @@ export const useMutationHooks = (fnCallback) => {
     })
     return mutation
 }
+

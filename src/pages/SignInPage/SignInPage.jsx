@@ -36,6 +36,8 @@ function SignInPage() {
     )
     const { data, isLoading, isError, isSuccess } = mutation
     useEffect(() => {
+        console.log('l and s', isSuccess, isLoading);
+
         if (isSuccess) {
             success()
             navigate('/')

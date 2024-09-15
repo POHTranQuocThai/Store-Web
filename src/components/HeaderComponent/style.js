@@ -27,4 +27,12 @@ export const WrapperHeaderAccout = styled.div`
     align-items: center;
     color: #fff;
     gap: 10px;
-` 
+`
+export const WrapperHeaderPopover = styled.p`
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Thêm hiệu ứng chuyển động khi hover */
+    &:hover {
+        background-color: #f0f0f0; /* Thay đổi màu nền khi hover */
+        color: #1890ff; /* Thay đổi màu chữ khi hover, tùy thuộc vào thiết kế */
+    }
+`
