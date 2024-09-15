@@ -19,10 +19,10 @@ function App() {
   // const query = useQuery({ queryKey: ['todos'], queryFn: fetchApi })
   useEffect(() => {
     const { decoded, storageData } = handleDecoded()
+
     if (decoded?.id) {
       handleGetDetailUser(decoded?.id, storageData)
     }
-
   }, [])
   const handleDecoded = () => {
     let storageData = localStorage.getItem('access_token');
@@ -54,11 +54,11 @@ function App() {
 
 
   const handleGetDetailUser = async (id, token) => {
-    console.log('User ID:', id);  // In ID người dùng
-    console.log('Token:', token);  // In token được truyền
-    const res = await UserSevice.getDetailUser(id, token);
-    console.log('API Response:', res);  // In phản hồi từ API
-    dispatch(updateUser({ ...res?.data, access_token: token }));
+    try {
+      const res = await UserSevice.getDetailUser(id, token);
+      dispatch(updateUser({ ...res?.data, access_token: token }));
+    } catch (error) {
+    }
   };
   return (
     <div>
