@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import Loading from '../../components/LoadingComponent/LoadingComponent'
 
 
-function HeaderComponent() {
+function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
@@ -20,35 +20,36 @@ function HeaderComponent() {
     const handleNavigateLogin = () => {
         navigate('/sign-in')
     }
-    useEffect(() => {
-        setLoading(true)
-        setName(user?.name)
-        setAvatar(user?.avatar)
-        setLoading(false)
-    }, [user?.name, user?.avatar])
     const handleLogOut = async () => {
         setLoading(true)
         await UserSevice.logoutUser()
         dispatch(resetUser())
         setLoading(false)
     }
+    useEffect(() => {
+        setLoading(true)
+        setName(user?.name)
+        setAvatar(user?.avatar)
+        setLoading(false)
+    }, [user?.name, user?.avatar])
     const content = (
         <div>
-            <WrapperHeaderPopover onClick={handleLogOut}>Đăng xuất</WrapperHeaderPopover>
             <WrapperHeaderPopover onClick={() => navigate('/profile-user')}>Thông tin khách hàng</WrapperHeaderPopover>
+            {user?.isAdmin && <WrapperHeaderPopover onClick={() => navigate('/system/admin')}>Quản lí hệ thống</WrapperHeaderPopover>}
+            <WrapperHeaderPopover onClick={handleLogOut}>Đăng xuất</WrapperHeaderPopover>
         </div>
     )
     return <div style={{ width: '100%' }}>
-        <WrapperHeader gutter={16}>
+        <WrapperHeader gutter={16} style={{ justifyContent: isHiddenCart && isHiddenSearch ? 'space-between' : 'unset' }}>
             <Col span={5}>
                 <WrapperTextHeader onClick={() => navigate('/')}>T-STORE</WrapperTextHeader>
             </Col>
-            <Col span={13}> <ButtonInputSearch
+            {!isHiddenSearch && <Col span={13}> <ButtonInputSearch
                 placeholder="input search text"
                 allowClear
                 textButton="Search"
                 size="large"
-            /></Col>
+            /></Col>}
             <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <Loading isLoading={loading}>
                     <WrapperHeaderAccout>
@@ -69,12 +70,12 @@ function HeaderComponent() {
                         }
                     </WrapperHeaderAccout>
                 </Loading>
-                <div>
+                {!isHiddenCart && <div>
                     <Badge count='4' size="small">
                         <ShoppingCartOutlined style={{ fontSize: '40px', color: '#fff' }} />
                     </Badge>
                     <WrapperTextHeaderSmall>Giỏ Hàng</WrapperTextHeaderSmall>
-                </div>
+                </div>}
             </Col>
         </WrapperHeader>
     </div >

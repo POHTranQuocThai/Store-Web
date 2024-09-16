@@ -1,22 +1,19 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import { routes } from './routes'
 import DefaultComponent from './components/DefaultComponent/DefaultComponent'
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { isJsonString } from './utils/utils'
 import { jwtDecode } from 'jwt-decode'
 import { updateUser } from './redux/slice/userSlide'
 import * as UserSevice from './services/UserService'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import Loading from './components/LoadingComponent/LoadingComponent'
 
 function App() {
   const dispatch = useDispatch()
-  // const fetchApi = async () => {
-  //   const res = await axios.get(`${process.env.API_KEY}/products/getAll`)
-  //   return res.data
-  // }
-  // const query = useQuery({ queryKey: ['todos'], queryFn: fetchApi })
+  const user = useSelector(state => state.users)
   useEffect(() => {
     const { decoded, storageData } = handleDecoded()
 
@@ -66,9 +63,10 @@ function App() {
         <Routes>
           {routes.map((route) => {
             const Page = route.page;
+            const isCheckAuth = !route.isPrivate || user?.isAdmin
             const Layout = route.isShowHeader ? DefaultComponent : Fragment
             return (
-              <Route path={route.path} element={
+              <Route key={route.path} path={route.path} element={
                 <Layout>
                   <Page />
                 </Layout>
