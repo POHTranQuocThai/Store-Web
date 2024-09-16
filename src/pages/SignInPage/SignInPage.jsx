@@ -32,24 +32,26 @@ function SignInPage() {
         setPassword(value)
     }
     const mutation = useMutationHooks(
-        data => UserSevice.loginUser(data)
+        (data) => UserSevice.loginUser(data)
     )
     const { data, isLoading, isError, isSuccess } = mutation
-    useEffect(() => {
-        console.log('l and s', isSuccess, isLoading);
+    console.log('sc', isSuccess);
 
-        if (isSuccess) {
+    useEffect(() => {
+        if (isSuccess && data?.status === 200) {
+            console.log("Data from API:", data); // Kiểm tra dữ liệu trả về
             success()
             navigate('/')
             localStorage.setItem('access_token', JSON.stringify(data?.access_token))
             if (data?.access_token) {
                 const decoded = jwtDecode(data?.access_token)
+                console.log('asd', data?.access_token);
                 if (decoded?.id) {
                     handleGetDetailUser(decoded?.id, data?.access_token)
                 }
             }
         }
-    }, [isSuccess])
+    }, [isSuccess, data])
 
     const handleGetDetailUser = async (id, token) => {
         const res = await UserSevice.getDetailUser(id, token)
