@@ -1,5 +1,5 @@
 import { AppstoreOutlined, UserOutlined } from '@ant-design/icons'
-import { Menu, Switch } from 'antd'
+import { Menu } from 'antd'
 import React, { useState } from 'react'
 import HeaderComponent from '../../components/HeaderComponent/HeaderComponent'
 import AdminUser from '../../components/AdminUser/AdminUser'
