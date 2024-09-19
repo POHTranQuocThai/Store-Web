@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { WrapperHeader } from '../AdminUser/style'
 import { Button, Form, Image, Modal } from 'antd'
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import TableComponent from '../TableComponent/TableComponent'
 import InputComponent from '../InputComponent/InputComponent'
 import { WrapperUploadFile } from '../../pages/ProfileUser/style'
@@ -9,6 +9,8 @@ import { getBase64 } from '../../utils/utils'
 import { useMutationHooks } from '../../hooks/useMutationHook'
 import * as ProductServer from '../../services/ProductService'
 import { error, success } from '../MessageComponent/MessageComponent'
+import { useQuery } from '@tanstack/react-query'
+
 
 function AdminProduct() {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -21,6 +23,7 @@ function AdminProduct() {
         type: '',
         countInStock: ''
     })
+    const [form] = Form.useForm()
     const mutation = useMutationHooks(
         (data) => {
             const { name,
@@ -42,7 +45,19 @@ function AdminProduct() {
             return res
         }
     )
+    const getAllProducts = async () => {
+        const res = await ProductServer.getAllProduct()
+        return res
+    }
+    const { isLoading: isLoadingProducts, data: products } = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
     const { data, isLoading, isSuccess, isError } = mutation
+    console.log('prod', products);
+    const renderAction = () => {
+        return <div>
+            <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} />
+            <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} />
+        </div>
+    }
     useEffect(() => {
         if (isSuccess && data?.status === 200) {
             success()
@@ -52,15 +67,16 @@ function AdminProduct() {
     }, [isSuccess, isError])
     const handleCancel = () => {
         setIsModalOpen(false)
-        // setStateProduct({
-        //     name: '',
-        //     price: '',
-        //     description: '',
-        //     rating: '',
-        //     image: '',
-        //     type: '',
-        //     countInstock: ''
-        // })
+        setStateProduct({
+            name: '',
+            price: '',
+            description: '',
+            rating: '',
+            image: '',
+            type: '',
+            countInstock: ''
+        })
+        form.resetFields()
     }
     const handleOnChange = (e) => {
         setStateProduct({
@@ -82,6 +98,36 @@ function AdminProduct() {
             image: file.preview
         })
     }
+    const columns = [
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            render: (text) => <a>{text}</a>,
+        },
+        {
+            title: 'Price',
+            dataIndex: 'price',
+        },
+        {
+            title: 'Rating',
+            dataIndex: 'rating',
+        },
+        {
+            title: 'Type',
+            dataIndex: 'type',
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            render: renderAction
+        },
+    ];
+    const dataTable = products?.data?.length && products?.data?.map((product) => {
+        return {
+            ...product,
+            key: product._id
+        }
+    })
     return (
         <div>
             <WrapperHeader>Thông tin sản phẩm</WrapperHeader>
@@ -90,8 +136,10 @@ function AdminProduct() {
                     <PlusOutlined style={{ fontSize: '60px' }} />
                 </Button>
             </div>
-            <div style={{ marginTop: '20px' }}><TableComponent /></div>
-            <Modal onText='' title="Tạo sản phẩm" open={isModalOpen} onCancel={handleCancel}>
+            <div style={{ marginTop: '20px' }}>
+                <TableComponent columns={columns} isLoading={isLoadingProducts} data={dataTable} />
+            </div>
+            <Modal title="Tạo sản phẩm" open={isModalOpen} onText='' onCancel={handleCancel}>
                 <Form
                     name="basic"
                     labelCol={{
@@ -108,6 +156,7 @@ function AdminProduct() {
                     }}
                     onFinish={onFinish}
                     autoComplete="off"
+                    form={form}
                 >
                     <Form.Item
                         label="Name"
@@ -199,8 +248,8 @@ function AdminProduct() {
                     </Form.Item>
                     <Form.Item
                         wrapperCol={{
-                            offset: 8,
-                            span: 16,
+                            offset: 20,
+                            span: 14,
                         }}
                     >
                         <Button type="primary" htmlType="submit">
