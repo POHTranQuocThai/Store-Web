@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { WrapperHeader } from '../AdminUser/style'
-import { Button, Form, Image, Modal } from 'antd'
+import { Button, Form, Image } from 'antd'
 import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import TableComponent from '../TableComponent/TableComponent'
 import InputComponent from '../InputComponent/InputComponent'
@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import DrawerComponent from '../DrawerComponent/DrawerComponent'
 import Loading from '../LoadingComponent/LoadingComponent'
 import { useSelector } from 'react-redux'
+import ModalComponent from '../ModalComponent/ModalComponent'
 
 
 function AdminProduct() {
@@ -20,6 +21,7 @@ function AdminProduct() {
     const [rowSelected, setRowSelected] = useState('')
     const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false)
+    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
     const user = useSelector(state => state?.users)
     const [stateProduct, setStateProduct] = useState({
         name: '',
@@ -63,27 +65,35 @@ function AdminProduct() {
     )
     const mutationUpdate = useMutationHooks(
         (data) => {
-            console.log('data', data); // Kiểm tra toàn bộ dữ liệu trước khi phân rã
-
-            const { id, token, ...rests } = data;
-            console.log('id', id); // Kiểm tra xem id có undefined không
-
+            const { id, token, ...rests } = data
             const res = ProductServer.updateProduct(
                 id,
                 token,
                 { ...rests }
-                // Sử dụng spread operator đúng cách
             )
-            console.log('rest', rests);
-
-            return res;
+            return res
         }
-    );
+    )
+    const mutationDelete = useMutationHooks(
+        (data) => {
+            const { id, token } = data
+            const res = ProductServer.deleteProduct(
+                id,
+                token
+            )
+            return res
+        }
+    )
 
     const getAllProducts = async () => {
         const res = await ProductServer.getAllProduct()
         return res
     }
+    const queryProduct = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
+    const { data, isLoading, isSuccess, isError } = mutation
+    const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
+    const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
+    const { isLoading: isLoadingProducts, data: products } = queryProduct
     const fetchGetDetailsProduct = async () => {
         const res = await ProductServer.getDetailsProduct(rowSelected)
         if (res?.data) {
@@ -99,33 +109,18 @@ function AdminProduct() {
         }
         setIsLoadingUpdate(false)
     }
+    //Use Effect
     useEffect(() => {
         form.setFieldsValue(stateProductDetails)
     }, [form, stateProductDetails])
 
     useEffect(() => {
         if (rowSelected) {
+            setIsLoadingUpdate(true)
             fetchGetDetailsProduct(rowSelected)
         }
     }, [rowSelected])
 
-    const handleDetailsProduct = () => {
-        if (rowSelected) {
-            setIsLoadingUpdate(true)
-            fetchGetDetailsProduct()
-        }
-        setIsOpenDrawer(true)
-    }
-    const queryProduct = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
-    const { data, isLoading, isSuccess, isError } = mutation
-    const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
-    const { isLoading: isLoadingProducts, data: products } = queryProduct
-    const renderAction = () => {
-        return <div>
-            <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} />
-            <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} onClick={handleDetailsProduct} />
-        </div>
-    }
     useEffect(() => {
         if (isSuccess && data?.status === 200) {
             success()
@@ -142,6 +137,25 @@ function AdminProduct() {
             error()
         }
     }, [isSuccessUpdated, isErrorUpdated])
+    useEffect(() => {
+        if (isSuccessDeleted && dataDeleted?.status === 200) {
+            success()
+            handleCancelDelete()
+        } else if (isErrorDeleted) {
+            error()
+        }
+    }, [isSuccessDeleted, isErrorDeleted])
+
+    const renderAction = () => {
+        return <div>
+            <DeleteOutlined style={{ color: 'red', fontSize: '30px', cursor: 'pointer' }} onClick={() => setIsModalOpenDelete(true)} />
+            <EditOutlined style={{ color: 'orange', fontSize: '30px', cursor: 'pointer' }} onClick={handleDetailsProduct} />
+        </div>
+    }
+    //Handle 
+    const handleDetailsProduct = () => {
+        setIsOpenDrawer(true)
+    }
     const handleCancel = () => {
         setIsModalOpen(false)
         setStateProduct({
@@ -154,6 +168,16 @@ function AdminProduct() {
             countInstock: ''
         })
         form.resetFields()
+    }
+    const handleCancelDelete = () => {
+        setIsModalOpenDelete(false)
+    }
+    const handleDeleteProduct = () => {
+        mutationDelete.mutate({ id: rowSelected, token: user?.access_token }, {
+            onSettled: () => {
+                queryProduct.refetch()
+            }
+        })
     }
     const handleCloseDrawer = () => {
         setIsOpenDrawer(false)
@@ -182,13 +206,10 @@ function AdminProduct() {
     }
 
 
-    const onFinish = () => {
-        mutation.mutate(stateProduct)
-    }
     const handleOnChangeAvatar = async ({ fileList }) => {
         const file = fileList[0]
         if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+            file.preview = await getBase64(file.originFileObj)
         }
         setStateProduct({
             ...stateProduct,
@@ -198,11 +219,18 @@ function AdminProduct() {
     const handleOnChangeAvatarDetails = async ({ fileList }) => {
         const file = fileList[0]
         if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+            file.preview = await getBase64(file.originFileObj)
         }
         setStateProductDetails({
             ...stateProductDetails,
             image: file.preview
+        })
+    }
+    const onFinish = () => {
+        mutation.mutate(stateProduct, {
+            onSettled: () => {
+                queryProduct.refetch()
+            }
         })
     }
     const columns = [
@@ -228,7 +256,7 @@ function AdminProduct() {
             dataIndex: 'action',
             render: renderAction
         },
-    ];
+    ]
     const dataTable = products?.data?.length && products?.data?.map((product) => {
         return {
             ...product,
@@ -244,6 +272,7 @@ function AdminProduct() {
             }
         })
     }
+
     return (
         <div>
             <WrapperHeader>Thông tin sản phẩm</WrapperHeader>
@@ -263,7 +292,7 @@ function AdminProduct() {
                     }}
                 />
             </div>
-            <Modal title="Tạo sản phẩm" open={isModalOpen} onText='' onCancel={handleCancel}>
+            <ModalComponent title="Tạo sản phẩm" open={isModalOpen} onText='' onCancel={handleCancel}>
                 <Form
                     name="basic"
                     labelCol={{
@@ -378,11 +407,11 @@ function AdminProduct() {
                         </Button>
                     </Form.Item>
                 </Form>
-            </Modal>
+            </ModalComponent>
             <DrawerComponent title='Chi tiết sản phẩm' isOpen={isOpenDrawer} onClose={() =>
                 setIsOpenDrawer(false)
             } width='90%' >
-                <Loading isLoading={isLoadingUpdate}>
+                <Loading isLoading={isLoadingUpdate || isLoadingProducts}>
                     <Form
                         name="basic"
                         labelCol={{
@@ -496,6 +525,9 @@ function AdminProduct() {
                     </Form>
                 </Loading>
             </DrawerComponent>
+            <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct}>
+                <div>Bạn có muốn xóa sản phẩm này không ?</div>
+            </ModalComponent>
         </div>
     )
 }
