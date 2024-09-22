@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { WrapperHeader } from '../AdminUser/style'
-import { Button, Form, Image } from 'antd'
-import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Form, Image, Space } from 'antd'
+import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
 import TableComponent from '../TableComponent/TableComponent'
 import InputComponent from '../InputComponent/InputComponent'
 import { WrapperUploadFile } from '../../pages/ProfileUser/style'
@@ -22,6 +22,7 @@ function AdminProduct() {
     const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false)
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
+    const searchInput = useRef(null);
     const user = useSelector(state => state?.users)
     const [stateProduct, setStateProduct] = useState({
         name: '',
@@ -233,23 +234,137 @@ function AdminProduct() {
             }
         })
     }
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+    };
+    const handleReset = (clearFilters) => {
+        clearFilters();
+    };
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <InputComponent
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        // render: (text) =>
+        //     searchedColumn === dataIndex ? (
+        //         <Highlighter
+        //             highlightStyle={{
+        //                 backgroundColor: '#ffc069',
+        //                 padding: 0,
+        //             }}
+        //             searchWords={[searchText]}
+        //             autoEscape
+        //             textToHighlight={text ? text.toString() : ''}
+        //         />
+        //     ) : (
+        //         text
+        //     ),
+    });
+
     const columns = [
         {
             title: 'Name',
             dataIndex: 'name',
             render: (text) => <a>{text}</a>,
+            sorter: (a, b) => a.name.length - b.name.length,
+            ...getColumnSearchProps('name')
         },
         {
             title: 'Price',
             dataIndex: 'price',
+            sorter: (a, b) => a.price - b.price,
+            filters: [
+                {
+                    text: '>= 50',
+                    value: '>=',
+                },
+                {
+                    text: '<= 50',
+                    value: '<=',
+                },
+            ],
+            onFilter: (value, record) => {
+                if (value === '>=') {
+                    return record.price >= 50
+                }
+                return record.price <= 50
+            },
+            width: '30%',
+
         },
         {
             title: 'Rating',
             dataIndex: 'rating',
+            sorter: (a, b) => a.rating - b.rating,
+            filters: [
+                {
+                    text: '>= 3',
+                    value: '>=',
+                },
+                {
+                    text: '<= 3',
+                    value: '<=',
+                },
+            ],
+            onFilter: (value, record) => {
+                if (value === '>=') {
+                    return Number(record.rating) >= 3
+                }
+                return Number(record.rating) <= 3
+            },
+            width: '30%'
         },
         {
             title: 'Type',
             dataIndex: 'type',
+
         },
         {
             title: 'Action',
