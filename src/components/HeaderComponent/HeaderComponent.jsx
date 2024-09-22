@@ -53,12 +53,12 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
             <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <Loading isLoading={loading}>
                     <WrapperHeaderAccout>
-                        {avatar ? <Image src={avatar} alt="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
-                            : <UserOutlined style={{ fontSize: '40px' }} />}
+                        {avatar ? <Image src={avatar} alt="avatar" style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover' }} />
+                            : <UserOutlined style={{ fontSize: '35px' }} />}
                         {user?.access_token ? <Popover trigger='click' content={content}>
                             {console.log('asds', name)
                             }
-                            <div style={{ cursor: 'pointer', fontSize: '18px' }}>{name.length ? name : user?.email}</div>
+                            <div style={{ cursor: 'pointer', fontSize: '16px', fontWeight: '400' }}>{name.length ? name : user?.email}</div>
                         </Popover>
                             :
                             <div onClick={handleNavigateLogin} style={{ cursor: 'pointer' }}>
