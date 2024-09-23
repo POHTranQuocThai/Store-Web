@@ -407,7 +407,7 @@ function AdminProduct() {
                     }}
                 />
             </div>
-            <ModalComponent title="Tạo sản phẩm" open={isModalOpen} onText='' onCancel={handleCancel}>
+            <ModalComponent forceRender title="Tạo sản phẩm" open={isModalOpen} onText='' onCancel={handleCancel}>
                 <Form
                     name="basic"
                     labelCol={{
@@ -640,7 +640,7 @@ function AdminProduct() {
                     </Form>
                 </Loading>
             </DrawerComponent>
-            <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct}>
+            <ModalComponent forceRender title="Xóa sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct}>
                 <div>Bạn có muốn xóa sản phẩm này không ?</div>
             </ModalComponent>
         </div>
