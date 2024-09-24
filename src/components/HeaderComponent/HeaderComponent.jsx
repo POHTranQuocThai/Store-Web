@@ -27,14 +27,16 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
         setLoading(false)
     }
     useEffect(() => {
+        if (user?.avatar) {
+            setAvatar(user?.avatar)
+        }
         setLoading(true)
         setName(user?.name)
-        setAvatar(user?.avatar)
         setLoading(false)
-    }, [user?.name, user?.avatar])
+    }, [user?.name])
     const content = (
         <div>
-            <WrapperHeaderPopover onClick={() => navigate('/profile-user')}>Thông tin khách hàng</WrapperHeaderPopover>
+            <WrapperHeaderPopover onClick={() => navigate('/profile-user')}>Thông tin nguời dùng</WrapperHeaderPopover>
             {user?.isAdmin && <WrapperHeaderPopover onClick={() => navigate('/system/admin')}>Quản lí hệ thống</WrapperHeaderPopover>}
             <WrapperHeaderPopover onClick={handleLogOut}>Đăng xuất</WrapperHeaderPopover>
         </div>
@@ -56,7 +58,7 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
                         {avatar ? <Image src={avatar} alt="avatar" style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover' }} />
                             : <UserOutlined style={{ fontSize: '35px' }} />}
                         {user?.access_token ? <Popover trigger='click' content={content}>
-                            {console.log('asds', name)
+                            {
                             }
                             <div style={{ cursor: 'pointer', fontSize: '16px', fontWeight: '400' }}>{name.length ? name : user?.email}</div>
                         </Popover>

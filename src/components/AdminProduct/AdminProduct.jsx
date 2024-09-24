@@ -85,6 +85,16 @@ function AdminProduct() {
             return res
         }
     )
+    const mutationDeleteMany = useMutationHooks(
+        (data) => {
+            const { token, ...ids } = data
+            const res = ProductServer.deleteMany(
+                ids,
+                token
+            )
+            return res
+        }
+    )
 
     const getAllProducts = async () => {
         const res = await ProductServer.getAllProduct()
@@ -94,6 +104,7 @@ function AdminProduct() {
     const { data, isLoading, isSuccess, isError } = mutation
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
+    const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
     const { isLoading: isLoadingProducts, data: products } = queryProduct
     const fetchGetDetailsProduct = async () => {
         const res = await ProductServer.getDetailsProduct(rowSelected)
@@ -116,11 +127,11 @@ function AdminProduct() {
     }, [form, stateProductDetails])
 
     useEffect(() => {
-        if (rowSelected) {
+        if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
             fetchGetDetailsProduct(rowSelected)
         }
-    }, [rowSelected])
+    }, [rowSelected, isOpenDrawer])
 
     useEffect(() => {
         if (isSuccess && data?.status === 200) {
@@ -146,6 +157,14 @@ function AdminProduct() {
             error()
         }
     }, [isSuccessDeleted, isErrorDeleted])
+    useEffect(() => {
+        if (isErrorDeletedMany && dataDeletedMany?.status === 200) {
+            success()
+            handleCancelDelete()
+        } else if (isErrorDeletedMany) {
+            error()
+        }
+    }, [isErrorDeletedMany, isErrorDeletedMany])
 
     const renderAction = () => {
         return <div>
@@ -154,6 +173,13 @@ function AdminProduct() {
         </div>
     }
     //Handle 
+    const handleDeleteManyProducts = (ids) => {
+        mutationDeleteMany.mutate({ ids: ids, token: user?.access_token }, {
+            onSettled: () => {
+                queryProduct.refetch()
+            }
+        })
+    }
     const handleDetailsProduct = () => {
         setIsOpenDrawer(true)
     }
@@ -397,7 +423,7 @@ function AdminProduct() {
                 </Button>
             </div>
             <div style={{ marginTop: '20px' }}>
-                <TableComponent columns={columns} isLoading={isLoadingProducts} data={dataTable}
+                <TableComponent handleDeleteManyProducts={handleDeleteManyProducts} columns={columns} isLoading={isLoadingProducts} data={dataTable}
                     onRow={(record, rowIndex) => {
                         return {
                             onClick: even => {

@@ -4,9 +4,8 @@ import { WrapperContentProfile, WrapperHeader, WrapperInput, WrapperLabel, Wrapp
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import * as UserSevice from '../../services/UserService'
-import { useMutation } from '@tanstack/react-query'
 import { useMutationHooks } from '../../hooks/useMutationHook'
-import { Button, Image, message, Upload } from 'antd'
+import { Button, Image } from 'antd'
 import { updateUser } from '../../redux/slice/userSlide'
 import { UploadOutlined } from '@ant-design/icons'
 import { getBase64 } from '../../utils/utils'
@@ -24,12 +23,11 @@ const ProfileUser = () => {
     const mutation = useMutationHooks(
         (data) => {
             const { id, access_token, ...rests } = data
-            UserSevice.updateUser(id, rests, access_token)
+            const res = UserSevice.updateUser(id, rests, access_token)
+            return res
         }
     )
     const { data, isLoading, isSuccess, isError } = mutation
-    console.log('data', user.id);
-
     useEffect(() => {
         setName(user?.name)
         setEmail(user?.email)
@@ -48,9 +46,14 @@ const ProfileUser = () => {
 
     const handleGetDetailUser = async (id, token) => {
         const res = await UserSevice.getDetailUser(id, token)
-        console.log("res", res);
-        dispatch(updateUser({ ...res?.data, access_token: token }))
+        if (res?.data) {
+            dispatch(updateUser({ ...res?.data, access_token: token }))
+        } else {
+            console.log('err', res.data);
+
+        }
     }
+
     const handleOnChangeEmail = (value) => {
         setEmail(value)
     }
@@ -73,8 +76,19 @@ const ProfileUser = () => {
 
 
     const handleUpdate = () => {
-        mutation.mutate({ id: user?.id, email, name, phone, address, avatar, access_token: user?.access_token })
+        const userData = {
+            id: user?.id,
+            email,
+            name,
+            phone,
+            address,
+            avatar,
+            access_token: user?.access_token
+        };
+        console.log('Data to update:', userData);  // Debug dữ liệu trước khi gửi
+        mutation.mutate(userData);
     }
+
     return (
         <div style={{ width: '1270px', margin: '0 auto', height: '500px' }}>
             <WrapperHeader>Thông tin người dùng</WrapperHeader>

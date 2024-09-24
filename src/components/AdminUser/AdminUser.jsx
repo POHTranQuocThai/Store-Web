@@ -21,13 +21,6 @@ function AdminUser() {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
     const searchInput = useRef(null);
     const user = useSelector(state => state?.users)
-    const [stateUser, setStateUser] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        isAdmin: false,
-        address: ''
-    })
     const [stateUserDetails, setStateUserDetails] = useState({
         name: '',
         email: '',
@@ -76,6 +69,7 @@ function AdminUser() {
                 phone: res?.data?.phone,
                 isAdmin: res?.data?.isAdmin,
                 address: res?.data?.address,
+                avatar: res?.data?.avatar
             })
         }
         setIsLoadingUpdate(false)
@@ -86,11 +80,11 @@ function AdminUser() {
     }, [form, stateUserDetails])
 
     useEffect(() => {
-        if (rowSelected) {
+        if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
             fetchGetDetailsUser(rowSelected)
         }
-    }, [rowSelected])
+    }, [rowSelected, isOpenDrawer])
 
     useEffect(() => {
         if (isSuccessUpdated && dataUpdated?.status === 200) {
@@ -135,16 +129,9 @@ function AdminUser() {
             name: '',
             email: '',
             phone: '',
-            isAdmin: false,
             address: '',
         })
         form.resetFields()
-    }
-    const handleOnChange = (e) => {
-        setStateUser({
-            ...stateUser,
-            [e.target.name]: e.target.value
-        })
     }
     const handleOnChangeDetails = (e) => {
         setStateUserDetails({
@@ -153,17 +140,6 @@ function AdminUser() {
         })
     }
 
-
-    const handleOnChangeAvatar = async ({ fileList }) => {
-        const file = fileList[0]
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj)
-        }
-        setStateUser({
-            ...stateUser,
-            image: file.preview
-        })
-    }
     const handleOnChangeAvatarDetails = async ({ fileList }) => {
         const file = fileList[0]
         if (!file.url && !file.preview) {
@@ -171,7 +147,7 @@ function AdminUser() {
         }
         setStateUserDetails({
             ...stateUserDetails,
-            image: file.preview
+            avatar: file.preview
         })
     }
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -371,7 +347,7 @@ function AdminUser() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateUserDetails.email} name='email' onChange={handleOnChange} />
+                        <InputComponent value={stateUserDetails['email']} name='email' onChange={handleOnChangeDetails} />
                     </Form.Item>
                     <Form.Item
                         label="Phone"
@@ -383,7 +359,7 @@ function AdminUser() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateUserDetails.phone} name='phone' onChange={handleOnChange} />
+                        <InputComponent value={stateUserDetails['email']} name='phone' onChange={handleOnChangeDetails} />
                     </Form.Item>
                     <Form.Item
                         label="Address"
@@ -395,15 +371,15 @@ function AdminUser() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateUserDetails.address} name='address' onChange={handleOnChange} />
+                        <InputComponent value={stateUserDetails['email']} name='address' onChange={handleOnChangeDetails} />
                     </Form.Item>
                     <Form.Item
-                        label="Image"
-                        name="image"
+                        label="Avatar"
+                        name="avatar"
                     >
                         <WrapperUploadFile onChange={handleOnChangeAvatarDetails} maxCount={1}>
                             <Button icon={<UploadOutlined />}>Select file</Button>
-                            {stateUserDetails?.image && (<Image src={stateUserDetails.image} alt='avatar' style={{ marginLeft: '10px', width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />)}
+                            {stateUserDetails?.avatar && (<Image src={stateUserDetails.avatar} alt='avatar' style={{ marginLeft: '10px', width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />)}
                         </WrapperUploadFile>
                     </Form.Item>
                     <Form.Item
