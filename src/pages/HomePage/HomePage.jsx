@@ -8,20 +8,42 @@ import slide4 from '../../assets/images/slide4.jpg.webp'
 import CardComponent from "../../components/CardComponent/CardComponent"
 import * as ProductService from '../../services/ProductService'
 import { useQuery } from "@tanstack/react-query"
+import { useSelector } from "react-redux"
+import { useRef, useState } from "react"
+import { useEffect } from "react"
+import Loading from "../../components/LoadingComponent/LoadingComponent"
+import { useDebounce } from "../../hooks/useDebounce"
 
 const HomePage = () => {
+  const searchProduct = useSelector(state => state?.products?.search)
+  const refSearch = useRef()
+  const searchDebounce = useDebounce(searchProduct, 1000)
+  const [stateProducts, setStateProducts] = useState([])
   const arr = ['TV', 'Tủ Lạnh', 'Lap Top']
-  const fetchProductAll = async () => {
-    const res = await ProductService.getAllProduct()
+  const fetchProductAll = async (search) => {
+    const res = await ProductService.getAllProduct(search)
+    if (search?.length > 0 || refSearch.current) {
+      setStateProducts(res?.data)
+    }
     return res
   }
+  useEffect(() => {
+    if (refSearch.current) {
+      fetchProductAll(searchDebounce)
+    }
+    refSearch.current = true
+  }, [searchDebounce])
   const { isLoading, data: products } = useQuery({
     queryKey: 'products',
     queryFn: fetchProductAll
   })
-  console.log('data', products);
+  useEffect(() => {
+    if (products?.data?.length > 0) {
+      setStateProducts(products?.data)
+    }
+  }, [products])
 
-  return (<>
+  return <Loading isLoading={isLoading}>
     <div style={{ padding: '0 120px' }}>
       <WrapperTypeProduct>
         {arr.map((item) => {
@@ -32,7 +54,7 @@ const HomePage = () => {
     <div id="container" style={{ backgroundColor: '#efefef', padding: '0 120px', width: '100%' }}>
       <SliderComponent arrImages={[slide1, slide2, slide3, slide4]} />
       <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-        {products?.data?.map(product => {
+        {stateProducts?.map(product => {
           return <CardComponent
             key={product._id}
             countInStock={product.countInStock}
@@ -57,10 +79,7 @@ const HomePage = () => {
         }} />
       </div>
     </div>
-
-  </>
-  )
-
+  </Loading>
 }
 
 export default HomePage
