@@ -359,7 +359,7 @@ function AdminUser() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateUserDetails['email']} name='phone' onChange={handleOnChangeDetails} />
+                        <InputComponent value={stateUserDetails['phone']} name='phone' onChange={handleOnChangeDetails} />
                     </Form.Item>
                     <Form.Item
                         label="Address"
@@ -371,7 +371,7 @@ function AdminUser() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateUserDetails['email']} name='address' onChange={handleOnChangeDetails} />
+                        <InputComponent value={stateUserDetails['address']} name='address' onChange={handleOnChangeDetails} />
                     </Form.Item>
                     <Form.Item
                         label="Avatar"
