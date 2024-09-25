@@ -8,6 +8,7 @@ import { resetUser } from "../../redux/slice/userSlide"
 import * as UserSevice from '../../services/UserService'
 import { useEffect, useState } from "react"
 import Loading from '../../components/LoadingComponent/LoadingComponent'
+import { searchProduct } from "../../redux/slice/ProductSlide"
 
 
 function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
@@ -16,6 +17,7 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState('')
     const [avatar, setAvatar] = useState('')
+    const [search, setSearch] = useState('')
     const user = useSelector((state) => state?.users)
     const handleNavigateLogin = () => {
         navigate('/sign-in')
@@ -41,16 +43,22 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
             <WrapperHeaderPopover onClick={handleLogOut}>Đăng xuất</WrapperHeaderPopover>
         </div>
     )
+    const onSearch = (e) => {
+        setSearch(e.target.value)
+        dispatch(searchProduct(e.target.value))
+
+    }
     return <div style={{ width: '100%' }}>
         <WrapperHeader gutter={16} style={{ justifyContent: isHiddenCart && isHiddenSearch ? 'space-between' : 'unset' }}>
             <Col span={5}>
                 <WrapperTextHeader onClick={() => navigate('/')}>T-STORE</WrapperTextHeader>
             </Col>
             {!isHiddenSearch && <Col span={13}> <ButtonInputSearch
-                placeholder="input search text"
+                placeholder="Input search text"
                 allowClear
                 textButton="Search"
                 size="large"
+                onChange={onSearch}
             /></Col>}
             <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <Loading isLoading={loading}>
