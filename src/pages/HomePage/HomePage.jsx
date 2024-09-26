@@ -9,39 +9,31 @@ import CardComponent from "../../components/CardComponent/CardComponent"
 import * as ProductService from '../../services/ProductService'
 import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "react-redux"
-import { useRef, useState } from "react"
-import { useEffect } from "react"
+import { useState } from "react"
 import Loading from "../../components/LoadingComponent/LoadingComponent"
 import { useDebounce } from "../../hooks/useDebounce"
 
 const HomePage = () => {
   const searchProduct = useSelector(state => state?.products?.search)
-  const refSearch = useRef()
   const searchDebounce = useDebounce(searchProduct, 1000)
-  const [stateProducts, setStateProducts] = useState([])
+  const [limit, setLimit] = useState(5)
   const arr = ['TV', 'Tủ Lạnh', 'Lap Top']
-  const fetchProductAll = async (search) => {
-    const res = await ProductService.getAllProduct(search)
-    if (search?.length > 0 || refSearch.current) {
-      setStateProducts(res?.data)
-    }
+  const fetchProductAll = async (context) => {
+    const limit = context?.queryKey && context?.queryKey[1]
+    const search = context?.queryKey && context?.queryKey[2]
+    const res = await ProductService.getAllProduct(search, limit)
     return res
+
   }
-  useEffect(() => {
-    if (refSearch.current) {
-      fetchProductAll(searchDebounce)
-    }
-    refSearch.current = true
-  }, [searchDebounce])
-  const { isLoading, data: products } = useQuery({
-    queryKey: 'products',
-    queryFn: fetchProductAll
-  })
-  useEffect(() => {
-    if (products?.data?.length > 0) {
-      setStateProducts(products?.data)
-    }
-  }, [products])
+  const { isLoading, data: products, isPreviousData } = useQuery({
+    queryKey: ['products', limit, searchDebounce],  // Query key để định danh query dựa trên limit và searchDebounce
+    queryFn: fetchProductAll,                       // Hàm fetch dữ liệu
+    retry: 3,                                       // Số lần thử lại khi gặp lỗi
+    retryDelay: 1000,                               // Thời gian chờ giữa các lần thử lại (1 giây)
+    keepPreviousData: true                          // Giữ dữ liệu cũ trong khi chờ dữ liệu mới
+  });
+  console.log('product', products);
+  console.log('l', limit);
 
   return <Loading isLoading={isLoading}>
     <div style={{ padding: '0 120px' }}>
@@ -54,7 +46,7 @@ const HomePage = () => {
     <div id="container" style={{ backgroundColor: '#efefef', padding: '0 120px', width: '100%' }}>
       <SliderComponent arrImages={[slide1, slide2, slide3, slide4]} />
       <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-        {stateProducts?.map(product => {
+        {products?.data?.map(product => {
           return <CardComponent
             key={product._id}
             countInStock={product.countInStock}
@@ -69,15 +61,18 @@ const HomePage = () => {
           />
         })}
       </div>
-      {/* <NavBarComponent /> */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-        <WrapperHoverButton textButton='Xem Thêm' type='outline' style={{
+      {products?.data?.length !== 0 && <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <WrapperHoverButton textButton='Xem Thêm' type='outline' styleBtn={{
           border: '1px solid rgb(10, 104, 255)',
-          color: 'rgb(10, 104, 255)',
           width: '240px',
-          fontWeight: '500'
-        }} />
-      </div>
+          fontWeight: '500',
+          color: `${products?.totalProduct === products?.data?.length ? '#ccc' : 'rgb(11,116,229'}`
+        }} disabled={products?.totalProduct === products?.data?.length || products?.totalPage === 1}
+          styleTextBtn={{ fontWeight: 600, color: products?.totalProduct === products?.data?.length && '#fff' }}
+          onClick={products?.totalProduct !== products?.data?.length
+            ? () => setLimit((prev) => prev + 6)
+            : null} />
+      </div>}
     </div>
   </Loading>
 }
