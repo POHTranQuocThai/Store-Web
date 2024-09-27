@@ -42,3 +42,9 @@ export const WrapperQuanlityProduct = styled.div`
    border-radius: 2px;
   
 `
+export const WrapperInputNumber = styled(InputNumber)`
+   & .ant-input-number-handler-wrap{
+        display : none;
+   }
+
+`

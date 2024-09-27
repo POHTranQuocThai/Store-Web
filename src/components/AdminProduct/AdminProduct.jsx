@@ -317,21 +317,7 @@ function AdminProduct() {
             />
         ),
         onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        // render: (text) =>
-        //     searchedColumn === dataIndex ? (
-        //         <Highlighter
-        //             highlightStyle={{
-        //                 backgroundColor: '#ffc069',
-        //                 padding: 0,
-        //             }}
-        //             searchWords={[searchText]}
-        //             autoEscape
-        //             textToHighlight={text ? text.toString() : ''}
-        //         />
-        //     ) : (
-        //         text
-        //     ),
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
     });
 
     const columns = [

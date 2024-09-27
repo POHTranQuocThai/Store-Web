@@ -58,6 +58,7 @@ const HomePage = () => {
             discount={product.discount}
             selled={product.selled}
             type={product.type}
+            id={product._id}
           />
         })}
       </div>
