@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { WrapperHeader } from '../AdminUser/style'
-import { Button, Form, Image, Space } from 'antd'
+import { Button, Form, Image, Select, Space } from 'antd'
 import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons'
 import TableComponent from '../TableComponent/TableComponent'
 import InputComponent from '../InputComponent/InputComponent'
 import { WrapperUploadFile } from '../../pages/ProfileUser/style'
-import { getBase64 } from '../../utils/utils'
+import { getBase64, renderOptions } from '../../utils/utils'
 import { useMutationHooks } from '../../hooks/useMutationHook'
-import * as ProductServer from '../../services/ProductService'
+import * as ProductService from '../../services/ProductService'
 import { error, success } from '../MessageComponent/MessageComponent'
 import { useQuery } from '@tanstack/react-query'
 import DrawerComponent from '../DrawerComponent/DrawerComponent'
@@ -21,6 +21,7 @@ function AdminProduct() {
     const [rowSelected, setRowSelected] = useState('')
     const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false)
+    const [typeSelect, setTypeSelect] = useState('')
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
     const searchInput = useRef(null);
     const user = useSelector(state => state?.users)
@@ -31,7 +32,8 @@ function AdminProduct() {
         rating: '',
         image: '',
         type: '',
-        countInStock: ''
+        countInStock: '',
+        newType: ''
     })
     const [stateProductDetails, setStateProductDetails] = useState({
         name: '',
@@ -52,7 +54,7 @@ function AdminProduct() {
                 image,
                 type,
                 countInStock } = data
-            const res = ProductServer.createProduct({
+            const res = ProductService.createProduct({
                 name,
                 price,
                 description,
@@ -67,7 +69,7 @@ function AdminProduct() {
     const mutationUpdate = useMutationHooks(
         (data) => {
             const { id, token, ...rests } = data
-            const res = ProductServer.updateProduct(
+            const res = ProductService.updateProduct(
                 id,
                 token,
                 { ...rests }
@@ -78,7 +80,7 @@ function AdminProduct() {
     const mutationDelete = useMutationHooks(
         (data) => {
             const { id, token } = data
-            const res = ProductServer.deleteProduct(
+            const res = ProductService.deleteProduct(
                 id,
                 token
             )
@@ -88,7 +90,7 @@ function AdminProduct() {
     const mutationDeleteMany = useMutationHooks(
         (data) => {
             const { token, ...ids } = data
-            const res = ProductServer.deleteMany(
+            const res = ProductService.deleteMany(
                 ids,
                 token
             )
@@ -97,17 +99,25 @@ function AdminProduct() {
     )
 
     const getAllProducts = async () => {
-        const res = await ProductServer.getAllProduct()
+        const res = await ProductService.getAllProduct()
         return res
     }
+    const fetchAllTypeProduct = async () => {
+        const res = await ProductService.getAllTypeProduct()
+        return res
+    }
+
     const queryProduct = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
+    const queryType = useQuery({ queryKey: ['type-product'], queryFn: fetchAllTypeProduct })
     const { data, isLoading, isSuccess, isError } = mutation
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
     const { isLoading: isLoadingProducts, data: products } = queryProduct
+    console.log('type', queryType);
+
     const fetchGetDetailsProduct = async () => {
-        const res = await ProductServer.getDetailsProduct(rowSelected)
+        const res = await ProductService.getDetailsProduct(rowSelected)
         if (res?.data) {
             setStateProductDetails({
                 name: res?.data?.name,
@@ -253,8 +263,23 @@ function AdminProduct() {
             image: file.preview
         })
     }
+    const handleChangeSelect = (value) => {
+        setStateProduct({
+            ...stateProduct,
+            type: value
+        })
+    }
     const onFinish = () => {
-        mutation.mutate(stateProduct, {
+        const params = {
+            name: stateProduct.name,
+            price: stateProduct.price,
+            description: stateProduct.description,
+            rating: stateProduct.rating,
+            image: stateProduct.image,
+            type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
+            countInStock: stateProduct.countInStock
+        }
+        mutation.mutate(params, {
             onSettled: () => {
                 queryProduct.refetch()
             }
@@ -384,12 +409,14 @@ function AdminProduct() {
             render: renderAction
         },
     ]
+
     const dataTable = products?.data?.length && products?.data?.map((product) => {
         return {
             ...product,
             key: product._id
         }
     })
+
     const onUpdateProduct = () => {
         mutationUpdate.mutate({
             id: rowSelected, token: user?.access_token, ...stateProductDetails
@@ -458,8 +485,29 @@ function AdminProduct() {
                             },
                         ]}
                     >
-                        <InputComponent value={stateProduct.type} name='type' onChange={handleOnChange} />
+                        <Select
+                            // defaultValue="lucy"
+                            style={{
+                                width: 120,
+                            }}
+                            value={stateProduct.type}
+                            onChange={handleChangeSelect}
+                            options={renderOptions(queryType?.data?.data)}
+                        />
                     </Form.Item>
+                    {stateProduct.type === 'add_type' &&
+                        <Form.Item
+                            label="New Type"
+                            name="newType"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your Type!',
+                                },
+                            ]}
+                        >
+                            <InputComponent value={stateProduct.newType} name='newType' onChange={handleOnChange} />
+                        </Form.Item>}
                     <Form.Item
                         label="Price"
                         name="price"
@@ -574,7 +622,8 @@ function AdminProduct() {
                                 },
                             ]}
                         >
-                            <InputComponent value={stateProductDetails['type']} name='type' onChange={handleOnChangeDetails} />
+                            {/* <InputComponent value={stateProductDetails['type']} name='type' onChange={handleOnChangeDetails} /> */}
+
                         </Form.Item>
                         <Form.Item
                             label="Price"

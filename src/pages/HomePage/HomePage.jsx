@@ -9,7 +9,7 @@ import CardComponent from "../../components/CardComponent/CardComponent"
 import * as ProductService from '../../services/ProductService'
 import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "react-redux"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Loading from "../../components/LoadingComponent/LoadingComponent"
 import { useDebounce } from "../../hooks/useDebounce"
 
@@ -17,7 +17,16 @@ const HomePage = () => {
   const searchProduct = useSelector(state => state?.products?.search)
   const searchDebounce = useDebounce(searchProduct, 1000)
   const [limit, setLimit] = useState(5)
-  const arr = ['TV', 'Tủ Lạnh', 'Lap Top']
+  const [typeProduct, setTypeProduct] = useState([])
+
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct()
+    setTypeProduct(res?.data)
+  }
+  useEffect(() => {
+    fetchAllTypeProduct()
+  }, [])
+
   const fetchProductAll = async (context) => {
     const limit = context?.queryKey && context?.queryKey[1]
     const search = context?.queryKey && context?.queryKey[2]
@@ -32,13 +41,11 @@ const HomePage = () => {
     retryDelay: 1000,                               // Thời gian chờ giữa các lần thử lại (1 giây)
     keepPreviousData: true                          // Giữ dữ liệu cũ trong khi chờ dữ liệu mới
   });
-  console.log('product', products);
-  console.log('l', limit);
 
   return <Loading isLoading={isLoading}>
     <div style={{ padding: '0 120px' }}>
       <WrapperTypeProduct>
-        {arr.map((item) => {
+        {typeProduct?.map((item) => {
           return <TypeProduct name={item} key={item} />
         })}
       </WrapperTypeProduct>
