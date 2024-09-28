@@ -14,10 +14,10 @@ function CardComponent(props) {
     }
     return <WrapperCardStyle
         hoverable
-        headStyle={{ width: '196px', height: '200px' }}
-        style={{ width: 196 }}
+        headStyle={{ width: '196px' }}
+        style={{ width: 204, borderRadius: '10px' }}
         bodyStyle={{ padding: '10px' }}
-        cover={<img alt="example" src={image} />}
+        cover={<img alt="example" src={image} style={{ padding: '5px 5px 0' }} />}
         onClick={() => handleDetailsProduct(id)}
     >
         <StyleNameProduct>{name}</StyleNameProduct>

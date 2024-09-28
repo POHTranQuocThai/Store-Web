@@ -2,8 +2,8 @@ import { Card } from "antd";
 import styled from "styled-components";
 
 export const StyleNameProduct = styled.div`
-    font-weight: 400;
-    font-size: 12px;
+    font-weight: 500;
+    font-size: 14px;
     line-height: 16px;
     color: rgb(56,56,61);
 `
@@ -34,7 +34,7 @@ export const WrapperPriceDiscountText = styled.span`
 export const WrapperCardStyle = styled(Card)`
     width: 200px;
     & img {
-    height: 200px;
+    height: 190px;
     width: 100%;
     }
 `

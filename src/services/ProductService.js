@@ -11,8 +11,8 @@ export const getAllProduct = async (search = '', limit = 20) => {
     }
     return res.data
 }
-export const getProductType = async (type) => {
-    const res = await axios.get(`http://localhost:3000/v1/products/getAll?filter=type&&filter=${type}`)
+export const getProductType = async (type, page, limit) => {
+    const res = await axios.get(`http://localhost:3000/v1/products/getAll?filter=type&&filter=${type}&limit=${limit}&page=${page}`)
     return res.data
 }
 export const createProduct = async (data) => {

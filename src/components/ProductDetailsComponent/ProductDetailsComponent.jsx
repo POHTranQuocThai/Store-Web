@@ -60,7 +60,10 @@ function ProductDetailsComponent({ idProduct }) {
                         <Rate allowHalf defaultValue={productDetails?.rating} value={productDetails?.rating} /><WrappperStyleTextSell> | Đã bán 1000+</WrappperStyleTextSell>
                     </div>
                     <div>
-                        <WrapperProductPrice>{productDetails?.price}</WrapperProductPrice>
+                        <WrapperProductPrice>{productDetails?.price.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        })}</WrapperProductPrice>
                     </div>
                     <WrapperProductAddress>
                         <span>Giao đến :</span> <br />
