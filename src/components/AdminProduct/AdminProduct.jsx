@@ -42,7 +42,8 @@ function AdminProduct() {
         rating: '',
         image: '',
         type: '',
-        countInStock: ''
+        countInStock: '',
+        newType: ''
     })
     const [form] = Form.useForm()
     const mutation = useMutationHooks(
@@ -66,17 +67,21 @@ function AdminProduct() {
             return res
         }
     )
+
     const mutationUpdate = useMutationHooks(
         (data) => {
-            const { id, token, ...rests } = data
+            console.log('dat', data); // Kiểm tra dữ liệu nhận được
+            const { id, token, params } = data; // Lấy id, token và params từ data
             const res = ProductService.updateProduct(
                 id,
                 token,
-                { ...rests }
-            )
-            return res
+                { ...params } // Gửi params thay vì rests
+            );
+            console.log('params sent to API:', params); // Log params để kiểm tra dữ liệu được gửi
+            return res;
         }
-    )
+    );
+
     const mutationDelete = useMutationHooks(
         (data) => {
             const { id, token } = data
@@ -269,6 +274,12 @@ function AdminProduct() {
             type: value
         })
     }
+    const handleChangeSelectDetails = (value) => {
+        setStateProductDetails({
+            ...stateProductDetails,
+            type: value
+        })
+    }
     const onFinish = () => {
         const params = {
             name: stateProduct.name,
@@ -416,15 +427,32 @@ function AdminProduct() {
             key: product._id
         }
     })
+    console.log('stateProductDetails', stateProductDetails);
 
     const onUpdateProduct = () => {
+        const params = {
+            name: stateProductDetails.name,
+            price: stateProductDetails.price,
+            description: stateProductDetails.description,
+            rating: stateProductDetails.rating,
+            image: stateProductDetails.image,
+            type: stateProductDetails.type === 'add_type' ? stateProductDetails.newType : stateProductDetails.type,
+            countInStock: stateProductDetails.countInStock
+        }
+        console.log('pa', params);
         mutationUpdate.mutate({
-            id: rowSelected, token: user?.access_token, ...stateProductDetails
+            id: rowSelected, token: user?.access_token, params
         }, {
+            onSuccess: (response) => {
+                console.log('Update successful', response);
+            },
+            onError: (error) => {
+                console.error('Update failed', error);
+            },
             onSettled: () => {
-                queryProduct.refetch()
+                queryProduct.refetch();
             }
-        })
+        });
     }
 
     return (
@@ -622,9 +650,29 @@ function AdminProduct() {
                                 },
                             ]}
                         >
-                            {/* <InputComponent value={stateProductDetails['type']} name='type' onChange={handleOnChangeDetails} /> */}
-
+                            <Select
+                                // defaultValue="lucy"
+                                style={{
+                                    width: 120,
+                                }}
+                                value={stateProductDetails.type}
+                                onChange={handleChangeSelectDetails}
+                                options={renderOptions(queryType?.data?.data)}
+                            />
                         </Form.Item>
+                        {stateProductDetails.type === 'add_type' &&
+                            <Form.Item
+                                label="New Type"
+                                name="newType"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your Type!',
+                                    },
+                                ]}
+                            >
+                                <InputComponent value={stateProductDetails.newType} name='newType' onChange={handleOnChangeDetails} />
+                            </Form.Item>}
                         <Form.Item
                             label="Price"
                             name="price"
