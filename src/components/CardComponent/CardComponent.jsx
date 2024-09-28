@@ -25,7 +25,7 @@ function CardComponent(props) {
             <span style={{ marginRight: '4px' }}><span>{rating}</span><StarFilled style={{ color: 'yellow', fontSize: '12px' }} /></span>
             <WrappperStyleTextSell> | Đã bán {selled}+</WrappperStyleTextSell>
         </WrapperReportText>
-        <WrapperPriceText>{price.toLocaleString('vi-VN', {
+        <WrapperPriceText>{price?.toLocaleString('vi-VN', {
             style: 'currency',
             currency: 'VND'
         })}<WrapperPriceDiscountText>-{discount || 5}%</WrapperPriceDiscountText></WrapperPriceText>

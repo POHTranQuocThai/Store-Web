@@ -82,7 +82,7 @@ function ProductDetailsComponent({ idProduct }) {
                     </div>
                 </Col>
             </Row>
-        </Loading>
+        </Loading >
     )
 }
 
