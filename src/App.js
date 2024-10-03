@@ -1,15 +1,12 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import { routes } from './routes'
 import DefaultComponent from './components/DefaultComponent/DefaultComponent'
-import { Fragment, useEffect, useState } from 'react'
-import axios from 'axios'
-import { useQuery } from '@tanstack/react-query'
+import { Fragment, useEffect } from 'react'
 import { isJsonString } from './utils/utils'
 import { jwtDecode } from 'jwt-decode'
 import { updateUser } from './redux/slice/userSlide'
 import * as UserSevice from './services/UserService'
 import { useDispatch, useSelector } from 'react-redux'
-import Loading from './components/LoadingComponent/LoadingComponent'
 
 function App() {
   const dispatch = useDispatch()
@@ -39,8 +36,6 @@ function App() {
 
     if (decoded?.exp < currentTime.getTime() / 1000) {
       const data = await UserSevice.refreshToken()
-      console.log('data', data);
-
       config.headers['token'] = `Bearer ${data?.access_token}`
     }
 
@@ -63,7 +58,7 @@ function App() {
         <Routes>
           {routes.map((route) => {
             const Page = route.page;
-            const isCheckAuth = !route.isPrivate || user?.isAdmin
+            // const isCheckAuth = !route.isPrivate || user?.isAdmin
             const Layout = route.isShowHeader ? DefaultComponent : Fragment
             return (
               <Route key={route.path} path={route.path} element={
