@@ -15,8 +15,8 @@ function TypeProductPage() {
     const { state } = useLocation()
     const [products, setProducts] = useState([])
     const [panigate, setPanigate] = useState({
-        page: 0,
-        limit: 10,
+        page: 1,
+        limit: 5,
         totalProduct: 1
     })
 
@@ -27,6 +27,7 @@ function TypeProductPage() {
             setPanigate({ ...panigate, totalProduct: res?.totalPage })
         }
     }
+    console.log("pag", panigate);
 
     useEffect(() => {
         if (state) {
@@ -34,6 +35,8 @@ function TypeProductPage() {
         }
     }, [state, panigate.page, panigate.limit])
     const onChange = (current, pageSize) => {
+        console.log('size', pageSize);
+
         setPanigate({ ...panigate, page: current - 1, limit: pageSize })
     }
     return (
@@ -42,7 +45,7 @@ function TypeProductPage() {
                 <Row style={{ padding: '40px 0', background: '#efefef', flexWrap: 'nowrap', height: 'calc(100% - 20px)' }}>
                     <WrapperNavBar span={4}><NavBarComponent /></WrapperNavBar>
                     <Col span={20} style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <Col style={{ display: 'flex', gap: '10px' }} >
+                        <Col style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }} >
                             {products?.filter((pro) => {
                                 if (searchDebounce === '') {
                                     return pro

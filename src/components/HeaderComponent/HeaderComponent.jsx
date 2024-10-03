@@ -17,6 +17,7 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState('')
     const [avatar, setAvatar] = useState('')
+    const order = useSelector(state => state.order)
     const [search, setSearch] = useState('')
     const user = useSelector((state) => state?.users)
     const handleNavigateLogin = () => {
@@ -66,8 +67,6 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
                         {avatar ? <Image src={avatar} alt="avatar" style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover' }} />
                             : <UserOutlined style={{ fontSize: '35px' }} />}
                         {user?.access_token ? <Popover trigger='click' content={content}>
-                            {
-                            }
                             <div style={{ cursor: 'pointer', fontSize: '16px', fontWeight: '400' }}>{name.length ? name : user?.email}</div>
                         </Popover>
                             :
@@ -80,9 +79,9 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
                         }
                     </WrapperHeaderAccout>
                 </Loading>
-                {!isHiddenCart && <div>
-                    <Badge count='4' size="small">
-                        <ShoppingCartOutlined style={{ fontSize: '40px', color: '#fff' }} />
+                {!isHiddenCart && <div onClick={() => navigate('/order')}>
+                    <Badge count={order?.orderItems?.length} size="small">
+                        <ShoppingCartOutlined style={{ fontSize: '40px', color: '#fff', cursor: 'pointer' }} />
                     </Badge>
                     <WrapperTextHeaderSmall>Giỏ Hàng</WrapperTextHeaderSmall>
                 </div>}

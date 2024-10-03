@@ -1,12 +1,22 @@
 import { Card } from "antd";
 import styled from "styled-components";
 
+
 export const StyleNameProduct = styled.div`
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 16px;
-    color: rgb(56,56,61);
-`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  color: rgb(56,56,61);
+  position: relative;         /* Đặt relative để quản lý vị trí của tooltip */
+
+  white-space: nowrap;         /* Không cho phép xuống dòng */
+  overflow: hidden;            /* Ẩn phần chữ bị tràn */
+  text-overflow: ellipsis;     /* Thêm dấu ba chấm khi chữ bị tràn */
+  max-width: 180px;            /* Đặt kích thước tối đa cho phần tử */
+
+`;
+
+
 export const WrapperReportText = styled.div`
     font-size: 11px;
     color: rgb(128,128,137);

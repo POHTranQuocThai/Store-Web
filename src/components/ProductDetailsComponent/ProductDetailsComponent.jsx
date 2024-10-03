@@ -8,9 +8,14 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent'
 import * as ProductServer from '../../services/ProductService'
 import { useQuery } from '@tanstack/react-query'
 import Loading from '../LoadingComponent/LoadingComponent'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { addOrderProduct } from '../../redux/slice/orderSlide'
 
 function ProductDetailsComponent({ idProduct }) {
+    const location = useLocation()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [numProduct, setNumProduct] = useState(1)
     const user = useSelector(state => state?.users)
     const onChange = (e) => {
@@ -40,6 +45,21 @@ function ProductDetailsComponent({ idProduct }) {
             numProduct > 1 && setNumProduct(numProduct - 1)
         }
     }
+    const handleAddOrderProduct = () => {
+        if (!user?.id) {
+            navigate('/sign-in', { state: location?.pathname })
+        } else {
+            dispatch(addOrderProduct({
+                orderItem: {
+                    name: productDetails?.name,
+                    amount: numProduct,
+                    image: productDetails?.image,
+                    price: productDetails?.price,
+                    product: productDetails?._id
+                }
+            }))
+        }
+    }
     return (
         <Loading isLoading={isLoading}>
             <Row style={{ padding: '16px', background: '#fff' }}>
@@ -60,10 +80,7 @@ function ProductDetailsComponent({ idProduct }) {
                         <Rate allowHalf defaultValue={productDetails?.rating} value={productDetails?.rating} /><WrappperStyleTextSell> | Đã bán 1000+</WrappperStyleTextSell>
                     </div>
                     <div>
-                        <WrapperProductPrice>{productDetails?.price.toLocaleString('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        })}</WrapperProductPrice>
+                        <WrapperProductPrice>{productDetails?.price}</WrapperProductPrice>
                     </div>
                     <WrapperProductAddress>
                         <span>Giao đến :</span> <br />
@@ -77,11 +94,10 @@ function ProductDetailsComponent({ idProduct }) {
                         <Button onClick={() => handleChangeCount('decrease')}><MinusOutlined style={{ color: '#000', fontSize: '20px' }} /></Button>
                     </WrapperQuanlityProduct>
                     <div style={{ display: 'flex', marginTop: '20px', alignItems: 'center', gap: '10px' }}>
-                        <ButtonComponent textButton={'Chọn mua'}
+                        <ButtonComponent textButton={'Chọn mua'} onClick={handleAddOrderProduct}
                             size={40} style={{ background: 'rgb(255,57,69)', height: '48px', width: '220px', border: 'none', borderRadius: '5px' }} styleTextBtn={{ color: '#fff' }} />
                         <ButtonComponent textButton={'Mua trả sau'}
                             size={40} style={{ height: '48px', width: '220px', borderRadius: '5px', border: '1px solid rgb(10, 104, 255)' }} styleTextBtn={{ color: 'rgb(10, 104, 255)' }} />
-
                     </div>
                 </Col>
             </Row>

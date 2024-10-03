@@ -5,7 +5,7 @@ import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import imageSignIn from '../../assets/images/login.png'
 import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons'
 import { Image } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMutationHooks } from '../../hooks/useMutationHook'
 import * as UserSevice from '../../services/UserService'
 import Loading from '../../components/LoadingComponent/LoadingComponent'
@@ -18,6 +18,7 @@ import { updateUser } from '../../redux/slice/userSlide'
 function SignInPage() {
     const [isShowPassword, setIsShowPassword] = useState(false)
     const [email, setEmail] = useState('')
+    const location = useLocation()
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -39,7 +40,9 @@ function SignInPage() {
 
     useEffect(() => {
         if (isSuccess && data?.status === 200) {
-            console.log("Data from API:", data); // Kiểm tra dữ liệu trả về
+            if (location?.state) {
+                navigate(location?.state)
+            }
             success()
             navigate('/')
             localStorage.setItem('access_token', JSON.stringify(data?.access_token))

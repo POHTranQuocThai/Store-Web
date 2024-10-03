@@ -432,7 +432,10 @@ function AdminProduct() {
     const onUpdateProduct = () => {
         const params = {
             name: stateProductDetails.name,
-            price: stateProductDetails.price,
+            price: stateProductDetails.price.toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }),
             description: stateProductDetails.description,
             rating: stateProductDetails.rating,
             image: stateProductDetails.image,
