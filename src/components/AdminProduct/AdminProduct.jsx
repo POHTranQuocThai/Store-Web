@@ -33,7 +33,8 @@ function AdminProduct() {
         image: '',
         type: '',
         countInStock: '',
-        newType: ''
+        newType: '',
+        discount: ''
     })
     const [stateProductDetails, setStateProductDetails] = useState({
         name: '',
@@ -43,7 +44,8 @@ function AdminProduct() {
         image: '',
         type: '',
         countInStock: '',
-        newType: ''
+        newType: '',
+        discount: ''
     })
     const [form] = Form.useForm()
     const mutation = useMutationHooks(
@@ -54,7 +56,8 @@ function AdminProduct() {
                 rating,
                 image,
                 type,
-                countInStock } = data
+                countInStock,
+                discount } = data
             const res = ProductService.createProduct({
                 name,
                 price,
@@ -62,7 +65,8 @@ function AdminProduct() {
                 rating,
                 image,
                 type,
-                countInStock
+                countInStock,
+                discount
             })
             return res
         }
@@ -70,14 +74,12 @@ function AdminProduct() {
 
     const mutationUpdate = useMutationHooks(
         (data) => {
-            console.log('dat', data); // Kiểm tra dữ liệu nhận được
             const { id, token, params } = data; // Lấy id, token và params từ data
             const res = ProductService.updateProduct(
                 id,
                 token,
                 { ...params } // Gửi params thay vì rests
             );
-            console.log('params sent to API:', params); // Log params để kiểm tra dữ liệu được gửi
             return res;
         }
     );
@@ -119,7 +121,6 @@ function AdminProduct() {
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
     const { isLoading: isLoadingProducts, data: products } = queryProduct
-    console.log('type', queryType);
 
     const fetchGetDetailsProduct = async () => {
         const res = await ProductService.getDetailsProduct(rowSelected)
@@ -131,7 +132,8 @@ function AdminProduct() {
                 rating: res?.data?.rating,
                 image: res?.data?.image,
                 type: res?.data?.type,
-                countInStock: res?.data?.countInStock
+                countInStock: res?.data?.countInStock,
+                discount: res?.data?.discount
             })
         }
         setIsLoadingUpdate(false)
@@ -207,7 +209,8 @@ function AdminProduct() {
             rating: '',
             image: '',
             type: '',
-            countInstock: ''
+            countInstock: '',
+            discount: ''
         })
         form.resetFields()
     }
@@ -230,7 +233,8 @@ function AdminProduct() {
             rating: '',
             image: '',
             type: '',
-            countInstock: ''
+            countInstock: '',
+            discount: ''
         })
         form.resetFields()
     }
@@ -288,7 +292,8 @@ function AdminProduct() {
             rating: stateProduct.rating,
             image: stateProduct.image,
             type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
-            countInStock: stateProduct.countInStock
+            countInStock: stateProduct.countInStock,
+            discount: stateProduct.discount
         }
         mutation.mutate(params, {
             onSettled: () => {
@@ -427,22 +432,18 @@ function AdminProduct() {
             key: product._id
         }
     })
-    console.log('stateProductDetails', stateProductDetails);
 
     const onUpdateProduct = () => {
         const params = {
             name: stateProductDetails.name,
-            price: stateProductDetails.price.toLocaleString('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }),
+            price: stateProductDetails.price,
             description: stateProductDetails.description,
             rating: stateProductDetails.rating,
             image: stateProductDetails.image,
             type: stateProductDetails.type === 'add_type' ? stateProductDetails.newType : stateProductDetails.type,
-            countInStock: stateProductDetails.countInStock
+            countInStock: stateProductDetails.countInStock,
+            discount: stateProductDetails.discount
         }
-        console.log('pa', params);
         mutationUpdate.mutate({
             id: rowSelected, token: user?.access_token, params
         }, {
@@ -574,6 +575,18 @@ function AdminProduct() {
                         ]}
                     >
                         <InputComponent value={stateProduct.rating} name='rating' onChange={handleOnChange} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Discount"
+                        name="discount"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your Discount!',
+                            },
+                        ]}
+                    >
+                        <InputComponent value={stateProduct.discount} name='discount' onChange={handleOnChange} />
                     </Form.Item>
                     <Form.Item
                         label="Description"
@@ -711,6 +724,18 @@ function AdminProduct() {
                             ]}
                         >
                             <InputComponent value={stateProductDetails['rating']} name='rating' onChange={handleOnChangeDetails} />
+                        </Form.Item>
+                        <Form.Item
+                            label="Discount"
+                            name="discount"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your Discount!',
+                                },
+                            ]}
+                        >
+                            <InputComponent value={stateProductDetails['discount']} name='discount' onChange={handleOnChangeDetails} />
                         </Form.Item>
                         <Form.Item
                             label="Description"

@@ -11,6 +11,7 @@ import Loading from '../LoadingComponent/LoadingComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { addOrderProduct } from '../../redux/slice/orderSlide'
+import { convertPrice } from '../../utils/utils'
 
 function ProductDetailsComponent({ idProduct }) {
     const location = useLocation()
@@ -80,7 +81,7 @@ function ProductDetailsComponent({ idProduct }) {
                         <Rate allowHalf defaultValue={productDetails?.rating} value={productDetails?.rating} /><WrappperStyleTextSell> | Đã bán 1000+</WrappperStyleTextSell>
                     </div>
                     <div>
-                        <WrapperProductPrice>{productDetails?.price}</WrapperProductPrice>
+                        <WrapperProductPrice>{convertPrice(productDetails?.price)}</WrapperProductPrice>
                     </div>
                     <WrapperProductAddress>
                         <span>Giao đến :</span> <br />

@@ -44,7 +44,7 @@ export const orderSlide = createSlice({
             const { idProduct } = action.payload
             const itemOrder = state?.orderItems?.find(item => item?.product === idProduct)
             if (itemOrder) {
-                itemOrder.amount !== 0 && itemOrder.amount--
+                itemOrder.amount > 1 && itemOrder.amount--
             }
         },
         removeOrderProduct: (state, action) => {

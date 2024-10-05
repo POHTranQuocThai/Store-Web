@@ -16,7 +16,7 @@ import { useDebounce } from "../../hooks/useDebounce"
 const HomePage = () => {
   const searchProduct = useSelector(state => state?.products?.search)
   const searchDebounce = useDebounce(searchProduct, 1000)
-  const [limit, setLimit] = useState(6)
+  const [limit, setLimit] = useState(12)
   const [typeProduct, setTypeProduct] = useState([])
 
   const fetchAllTypeProduct = async () => {
@@ -34,6 +34,8 @@ const HomePage = () => {
     return res
 
   }
+
+
   const { isLoading, data: products, isPreviousData } = useQuery({
     queryKey: ['products', limit, searchDebounce],  // Query key để định danh query dựa trên limit và searchDebounce
     queryFn: fetchProductAll,                       // Hàm fetch dữ liệu
@@ -46,6 +48,7 @@ const HomePage = () => {
     <div style={{ padding: '0 120px' }}>
       <WrapperTypeProduct>
         {typeProduct?.map((item) => {
+          console.log('type', item);
           return <TypeProduct name={item} key={item} />
         })}
       </WrapperTypeProduct>

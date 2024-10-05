@@ -24,20 +24,18 @@ function TypeProductPage() {
         const res = await ProductService.getProductType(type, page, limit)
         if (res?.status === 200) {
             setProducts(res?.data)
-            setPanigate({ ...panigate, totalProduct: res?.totalPage })
+            setPanigate(prev => ({ ...prev, totalProduct: res?.totalPage })) // Sử dụng callback
         }
     }
-    console.log("pag", panigate);
 
     useEffect(() => {
         if (state) {
             fetchProductType(state, panigate.page, panigate.limit)
         }
-    }, [state, panigate.page, panigate.limit])
-    const onChange = (current, pageSize) => {
-        console.log('size', pageSize);
+    }, [state, panigate.page, panigate.limit]) // Chỉ phụ thuộc vào các giá trị cụ thể
 
-        setPanigate({ ...panigate, page: current - 1, limit: pageSize })
+    const onChange = (current, pageSize) => {
+        setPanigate({ ...panigate, page: current, limit: pageSize }); // Không cần trừ 1
     }
     return (
         <div style={{ width: '100%', background: '#efefef', height: 'calc(100vh - 64px)' }}>
@@ -47,12 +45,13 @@ function TypeProductPage() {
                     <Col span={20} style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
                         <Col style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }} >
                             {products?.filter((pro) => {
-                                if (searchDebounce === '') {
-                                    return pro
+                                if (!searchDebounce) {
+                                    return true; // Trả về tất cả sản phẩm nếu không có giá trị tìm kiếm
                                 } else if (pro?.name.toLowerCase()?.includes(searchDebounce?.toLowerCase())) {
-                                    return pro
+                                    return true;
                                 }
-                            })?.map(product => {
+                                return false;
+                            }).map(product => {
                                 return <CardComponent
                                     key={product._id}
                                     countInStock={product.countInStock}
@@ -71,7 +70,7 @@ function TypeProductPage() {
                     </Col>
                 </Row>
                 <Pagination style={{ textAlign: 'center', marginTop: '20px' }}
-                    defaultCurrent={panigate?.page + 1} total={panigate?.totalProduct} onChange={onChange} />
+                    current={panigate?.page} total={panigate?.totalProduct} onChange={onChange} />
             </div>
         </div >
     )

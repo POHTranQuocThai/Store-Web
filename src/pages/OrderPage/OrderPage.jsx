@@ -5,7 +5,8 @@ import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { WrapperInputNumber } from '../../components/ProductDetailsComponent/style';
 import { increaseAmount, decreaseAmount, removeOrderProduct, removeAllOrderProduct } from '../../redux/slice/orderSlide'
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { convertPrice } from '../../utils/utils';
 
 const OrderPage = () => {
   const order = useSelector(state => state.order)
@@ -34,7 +35,6 @@ const OrderPage = () => {
     }
   }
   const onChange = (e) => {
-    console.log('🚀 ~ onChange ~ e.target.value:', e.target.value)
     if (listChecked.includes(e.target.value)) {
       const newIsChecked = listChecked.filter(item => item !== e.target.value)
       setListChecked(newIsChecked)
@@ -43,13 +43,34 @@ const OrderPage = () => {
         [...listChecked, e.target.value]
       )
     }
-    console.log('🚀 ~ onChange ~ listChecked:', listChecked)
   }
   const handleRemoveAllOrder = () => {
     if (listChecked?.length > 0) {
       dispatch(removeAllOrderProduct({ listChecked }))
     }
   }
+  const provisional = useMemo(() => {
+    const result = order?.orderItems?.reduce((total, cur) => {
+      return total + (cur?.amount * cur?.price)
+    }, 0)
+    return result
+  }, [order])
+  const discountPrice = useMemo(() => {
+    const result = order?.orderItems?.reduce((total, cur) => {
+      return total + (cur?.discount * cur?.amount)
+    }, 0)
+    return Number(result) || 0
+  }, [order])
+  const diliveryPrice = useMemo(() => {
+    if (provisional > 500000) {
+      return 30000
+    } else {
+      return 20000
+    }
+  }, [order])
+  const totalPrice = useMemo(() => {
+    return provisional - discountPrice + diliveryPrice
+  }, [provisional, discountPrice, diliveryPrice])
   return (
     <div style={{ background: '#f5f5f5', minHeight: '100vh', padding: '20px 0' }}>
       <p style={{ padding: '0 120px', fontWeight: '600', fontSize: '24px', textAlign: 'center' }}>Giỏ hàng</p>
@@ -87,14 +108,14 @@ const OrderPage = () => {
                   </p>
                 </div>
               </Col>
-              <Col span={4} style={{ paddingLeft: '20px' }}>{order?.price}</Col>
+              <Col span={4} style={{ paddingLeft: '20px' }}>{convertPrice(order?.price)}</Col>
               <Col span={4}>
                 <Button onClick={() => handleChangeCount('increase', order?.product)}><PlusOutlined style={{ color: '#000', fontSize: '10px' }} /></Button>
                 <WrapperInputNumber readOnly
                   style={{ width: '35px' }} min={1} max={100} defaultValue={1} onChange={handleChangeCount} value={order?.amount} />
                 <Button onClick={() => handleChangeCount('decrease', order?.product)}><MinusOutlined style={{ color: '#000', fontSize: '10px' }} /></Button>
               </Col>
-              <Col span={4}>{order?.price * order?.amount}</Col>
+              <Col span={4}>{convertPrice(order?.amount * order?.price)}</Col>
               <Col span={1}>
                 <DeleteOutlined style={{ cursor: 'pointer' }} onClick={() => handleDeleteOrder(order?.product)} />
               </Col>
@@ -106,28 +127,24 @@ const OrderPage = () => {
         <Col xs={24} md={6} style={{ background: '#fff', padding: '20px', borderRadius: '8px' }}>
           <Row justify="space-between" style={{ marginBottom: '10px' }}>
             <Col>Tạm tính</Col>
-            <Col>2.000.000 VND</Col>
+            <Col>{convertPrice(provisional)}</Col>
           </Row>
           <Row justify="space-between" style={{ marginBottom: '10px' }}>
             <Col>Giảm giá</Col>
-            <Col>0 VND</Col>
-          </Row>
-          <Row justify="space-between" style={{ marginBottom: '10px' }}>
-            <Col>Thuế</Col>
-            <Col>0 VND</Col>
+            <Col>{`${discountPrice} %`}</Col>
           </Row>
           <Row justify="space-between" style={{ marginBottom: '10px' }}>
             <Col>Phí giao hàng</Col>
-            <Col>0 VND</Col>
+            <Col>{convertPrice(diliveryPrice)}</Col>
           </Row>
           <Row justify="space-between" align="middle" style={{ paddingTop: '20px' }}>
             <Col style={{ fontWeight: '600' }}>Tổng tiền</Col>
             <Col>
-              <span style={{ fontSize: '25px', fontWeight: '600', color: 'red' }}>2.000.000 VND</span>
+              <span style={{ fontSize: '25px', fontWeight: '600', color: 'red' }}>{convertPrice(totalPrice)}</span>
               <p style={{ fontSize: '12px', fontWeight: '500' }}>(Đã bao gồm VAT nếu có)</p>
             </Col>
           </Row>
-          <ButtonComponent style={{ marginTop: '20px', background: 'red', width: '100%' }} styleTextBtn={{ color: '#fff' }} textButton={'Thanh toán'}></ButtonComponent>
+          <ButtonComponent style={{ marginTop: '20px', background: 'red', width: '100%', height: '40px' }} styleTextBtn={{ color: '#fff' }} textButton={'Thanh toán'}></ButtonComponent>
         </Col>
       </Row>
     </div>
