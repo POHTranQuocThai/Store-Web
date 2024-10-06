@@ -48,7 +48,6 @@ const HomePage = () => {
     <div style={{ padding: '0 120px' }}>
       <WrapperTypeProduct>
         {typeProduct?.map((item) => {
-          console.log('type', item);
           return <TypeProduct name={item} key={item} />
         })}
       </WrapperTypeProduct>
