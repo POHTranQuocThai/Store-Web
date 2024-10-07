@@ -14,12 +14,14 @@ import * as UserService from '../../services/UserService'
 import Loading from '../../components/LoadingComponent/LoadingComponent';
 import { error } from '../../components/MessageComponent/MessageComponent';
 import { updateUser } from '../../redux/slice/userSlide';
+import { useNavigate } from 'react-router-dom';
 
 const OrderPage = () => {
   const order = useSelector(state => state.order)
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
   const user = useSelector(state => state.users)
   const [listChecked, setListChecked] = useState([])
+  const navigate = useNavigate()
   const [stateUserDetails, setStateUserDetails] = useState({
     name: '',
     phone: '',
@@ -121,6 +123,8 @@ const OrderPage = () => {
       error('Vui long chon san pham')
     } else if (!user?.phone || !user?.address || !user?.name || !user?.city) {
       setIsModalOpenDelete(true)
+    } else {
+      navigate('/payment')
     }
   }
 
@@ -157,6 +161,9 @@ const OrderPage = () => {
         }
       })
     }
+  }
+  const handleChangeAddress = () => {
+    setIsModalOpenDelete(true)
   }
   return (
     <div style={{ background: '#f5f5f5', minHeight: '100vh', padding: '20px 0' }}>
@@ -212,6 +219,13 @@ const OrderPage = () => {
 
         {/* Cột Tổng tiền */}
         <Col xs={24} md={6} style={{ background: '#fff', padding: '20px', borderRadius: '8px' }}>
+          <Row style={{ marginBottom: '20px', paddingBottom: '10px' }}>
+            <div>
+              <span>Địa chỉ: </span>
+              <span style={{ fontWeight: '500' }}>{`${user?.address} ${user?.city}`} </span>
+              <span onClick={handleChangeAddress} style={{ cursor: 'pointer', fontSize: '12px', fontStyle: 'italic', color: 'blue' }}>Thay đổi</span>
+            </div>
+          </Row>
           <Row justify="space-between" style={{ marginBottom: '10px' }}>
             <Col>Tạm tính</Col>
             <Col>{convertPrice(provisional)}</Col>
