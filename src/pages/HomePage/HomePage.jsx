@@ -54,7 +54,7 @@ const HomePage = () => {
     </div>
     <div id="container" style={{ backgroundColor: '#efefef', padding: '0 120px', width: '100%' }}>
       <SliderComponent arrImages={[slide1, slide2, slide3, slide4]} />
-      <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+      <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         {products?.data?.map(product => {
           return <CardComponent
             key={product._id}

@@ -36,7 +36,7 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
         setLoading(true)
         setName(user?.name)
         setLoading(false)
-    }, [user?.name])
+    }, [user?.name, user?.avatar])
     const content = (
         <div>
             <WrapperHeaderPopover onClick={() => navigate('/profile-user')}>Thông tin nguời dùng</WrapperHeaderPopover>

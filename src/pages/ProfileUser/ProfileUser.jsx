@@ -82,7 +82,7 @@ const ProfileUser = () => {
             name,
             phone,
             address,
-            avatar,
+            avatar: avatar,
             access_token: user?.access_token
         };
         console.log('Data to update:', userData);  // Debug dữ liệu trước khi gửi

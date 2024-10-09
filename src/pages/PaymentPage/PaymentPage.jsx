@@ -1,5 +1,5 @@
 
-import { Row, Col, Checkbox, Image, Button, Form, message, Radio } from 'antd';
+import { Row, Col, Form, Radio } from 'antd';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useMemo, useState } from 'react';
@@ -9,17 +9,19 @@ import InputComponent from '../../components/InputComponent/InputComponent';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import * as UserService from '../../services/UserService'
 import * as OrderService from '../../services/OrderService'
-import Loading from '../../components/LoadingComponent/LoadingComponent';
 import { error, success } from '../../components/MessageComponent/MessageComponent';
 import { updateUser } from '../../redux/slice/userSlide';
 import { WrapperRadio } from './style';
+import { useNavigate } from 'react-router-dom';
+import { removeAllOrderProduct } from '../../redux/slice/orderSlide';
 
 const PaymentPage = () => {
-    const order = useSelector(state => state.order)
+    const order = useSelector(state => state?.order)
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
     const user = useSelector(state => state.users)
-    const [dilivery, setDilivery] = useState('')
+    const [delivery, setDilivery] = useState('')
     const [payment, setPayment] = useState('')
+    const navigate = useNavigate()
     const [stateUserDetails, setStateUserDetails] = useState({
         name: '',
         phone: '',
@@ -44,6 +46,7 @@ const PaymentPage = () => {
         }
     }, [isModalOpenDelete])
 
+
     const handleOnChangeDetails = (e) => {
         setStateUserDetails({
             ...stateUserDetails,
@@ -63,7 +66,7 @@ const PaymentPage = () => {
         }, 0)
         return (Number(result) && Number(result)) || 0
     }, [order])
-    const diliveryPrice = useMemo(() => {
+    const deliveryPrice = useMemo(() => {
         if (provisional > 500000) {
             return 30000
         } else if (provisional === 0) {
@@ -74,23 +77,23 @@ const PaymentPage = () => {
     }, [provisional])
 
     const totalPrice = useMemo(() => {
-        return provisional - discountPrice + diliveryPrice
-    }, [provisional, discountPrice, diliveryPrice])
+        return provisional - discountPrice + deliveryPrice
+    }, [provisional, discountPrice, deliveryPrice])
 
 
     const handleAddOrder = () => {
-        if (user?.access_token && order?.selectedItemOrder && user?.name && user?.address && user?.phone && user?.city
+        if (!delivery) {
+            error('Vui lòng chọn phương thức giao hàng!')
+        } else if (!payment) {
+            error('Vui lòng chọn phương thức thanh toán!')
+        }
+        else if (user?.access_token && order?.selectedItemOrder && user?.name && user?.address && user?.phone && user?.city
             && provisional && user?.id && payment
         ) {
-            console.log('🚀 ~ handleAddOrder ~ user:', user)
             mutationAddOrder.mutate({
                 token: user?.access_token, fullName: user?.name, orderItems: order?.selectedItemOrder,
                 address: user?.address, phone: user?.phone, city: user?.city, paymentMethod: payment,
-                user: user?.id, itemsPrice: provisional, shippingPrice: diliveryPrice, totalPrice: totalPrice
-            }, {
-                onSuccess: () => {
-                    success('Đặt hàng thành công')
-                }
+                user: user?.id, itemsPrice: provisional, shippingPrice: deliveryPrice, totalPrice: totalPrice
             })
         }
     }
@@ -122,8 +125,29 @@ const PaymentPage = () => {
         )
         return res
     })
-    const { isLoading, data } = mutationUpdate
-    const { isLoading: isLoadingAddOrder } = mutationAddOrder
+    const { data } = mutationUpdate
+    const { isSuccess: isSuccessAddOrder, isError: isErrorAddOrder, data: dataAdd } = mutationAddOrder
+
+    useEffect(() => {
+        if (isSuccessAddOrder && dataAdd?.status === 200) {
+            const arrayOrdered = []
+            order?.selectedItemOrder?.forEach(element => {
+                arrayOrdered.push(element?.product)
+            })
+            dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }))
+            success('Đặt hàng thành công')
+            navigate('/orderSuccess', {
+                state: {
+                    payment,
+                    delivery,
+                    orders: order?.selectedItemOrder,
+                    totalPrice: totalPrice
+                }
+            })
+        } else if (isErrorAddOrder) {
+            error('Đặt hàng không thành công!')
+        }
+    }, [isSuccessAddOrder, isErrorAddOrder])
 
     const handleUpdateInfoUser = () => {
         const { name, phone, city, address } = stateUserDetails
@@ -151,14 +175,13 @@ const PaymentPage = () => {
         <div style={{ background: '#f5f5f5', minHeight: '100vh', padding: '20px 0' }}>
             <p style={{ padding: '0 120px', fontWeight: '600', fontSize: '24px', textAlign: 'center' }}>Thanh toán</p>
 
-
             <Row justify="center" style={{ maxWidth: '1250px', margin: '0 auto' }}>
                 {/* Cột Giỏ hàng */}
                 <Col xs={24} md={17} style={{ background: '#fff', padding: '20px', marginRight: '20px', borderRadius: '8px' }}>
                     <Row>
                         <div>
                             <label>Chọn phương thức giao hàng</label>
-                            <WrapperRadio onChange={handleDilivery} value={dilivery}>
+                            <WrapperRadio onChange={handleDilivery} value={delivery}>
                                 <Radio defaultChecked value={'fast'}><span style={{ color: '#ea8500', fontWeight: 'bold' }}>Fast </span>Giao hàng nhanh</Radio>
                                 <Radio value={'gojek'}><span style={{ color: '#ea8500', fontWeight: 'bold' }}>Gojek </span>Giao hàng tiết kiệm</Radio>
                             </WrapperRadio>
@@ -193,7 +216,7 @@ const PaymentPage = () => {
                     </Row>
                     <Row justify="space-between" style={{ marginBottom: '10px' }}>
                         <Col>Phí giao hàng</Col>
-                        <Col>{convertPrice(diliveryPrice)}</Col>
+                        <Col>{convertPrice(deliveryPrice)}</Col>
                     </Row>
                     <Row justify="space-between" align="middle" style={{ paddingTop: '20px' }}>
                         <Col style={{ fontWeight: '600' }}>Tổng tiền</Col>

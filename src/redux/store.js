@@ -19,7 +19,7 @@ const persistConfig = {
     key: 'root',
     version: 1,
     storage,
-    blacklist: ['products', 'users']
+    blacklist: ['products', 'user']
 }
 const rootReducer = combineReducers({
     products: productReducer,  // Sử dụng reducer được export default từ counterSlide

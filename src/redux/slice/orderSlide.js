@@ -38,13 +38,17 @@ export const orderSlide = createSlice({
             const itemOrder = state?.orderItems?.find(item => item?.product === idProduct)
             const selectItemOrder = state?.selectedItemOrder?.find(item => item?.product === idProduct)
             itemOrder.amount++
-            selectItemOrder.amount++
+            if (selectItemOrder) {
+                selectItemOrder.amount++
+            }
         },
         decreaseAmount: (state, action) => {
             const { idProduct } = action.payload
             const itemOrder = state?.orderItems?.find(item => item?.product === idProduct)
             const selectItemOrder = state?.selectedItemOrder?.find(item => item?.product === idProduct)
-            selectItemOrder.amount > 1 && selectItemOrder.amount--
+            if (selectItemOrder) {
+                selectItemOrder.amount > 1 && selectItemOrder.amount--
+            }
             itemOrder.amount > 1 && itemOrder.amount--
         },
         removeOrderProduct: (state, action) => {
