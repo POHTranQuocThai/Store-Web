@@ -19,7 +19,8 @@ function CardComponent(props) {
         style={{ width: 204, borderRadius: '10px' }}
         bodyStyle={{ padding: '10px' }}
         cover={<img alt="example" src={image} style={{ padding: '5px 5px 0' }} />}
-        onClick={() => handleDetailsProduct(id)}
+        onClick={() => countInStock !== 0 && handleDetailsProduct(id)}
+        disabled={countInStock === 0}
     >
         <StyleNameProduct>{name}</StyleNameProduct>
         <WrapperReportText>

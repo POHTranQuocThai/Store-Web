@@ -47,4 +47,6 @@ export const WrapperCardStyle = styled(Card)`
     height: 190px;
     width: 100%;
     }
+    background: ${props => props.disabled ? '#ccc' : '#fff'}
+    cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'}
 `

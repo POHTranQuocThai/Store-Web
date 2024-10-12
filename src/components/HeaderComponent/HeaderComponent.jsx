@@ -19,6 +19,7 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
     const [avatar, setAvatar] = useState('')
     const order = useSelector(state => state.order)
     const [search, setSearch] = useState('')
+    const [isOpenPopup, setIsOpenPopup] = useState(false)
     const user = useSelector((state) => state?.users)
     const handleNavigateLogin = () => {
         navigate('/sign-in')
@@ -39,11 +40,24 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
     }, [user?.name, user?.avatar])
     const content = (
         <div>
-            <WrapperHeaderPopover onClick={() => navigate('/profile-user')}>Thông tin nguời dùng</WrapperHeaderPopover>
-            {user?.isAdmin && <WrapperHeaderPopover onClick={() => navigate('/system/admin')}>Quản lí hệ thống</WrapperHeaderPopover>}
-            <WrapperHeaderPopover onClick={handleLogOut}>Đăng xuất</WrapperHeaderPopover>
-        </div>
+            <WrapperHeaderPopover onClick={() => handleClickNavigate('profile')}>Thông tin nguời dùng</WrapperHeaderPopover>
+            {user?.isAdmin && <WrapperHeaderPopover onClick={() => handleClickNavigate('admin')}>Quản lí hệ thống</WrapperHeaderPopover>}
+            <WrapperHeaderPopover onClick={() => handleClickNavigate('my-order')}>Đơn hàng của tôi</WrapperHeaderPopover>
+            <WrapperHeaderPopover onClick={() => handleClickNavigate()}>Đăng xuất</WrapperHeaderPopover>
+        </div >
     )
+    const handleClickNavigate = (type) => {
+        if (type === 'profile') {
+            navigate('/profile-user')
+        } else if (type === 'admin') {
+            navigate('/system/admin')
+        } else if (type === 'my-order') {
+            navigate('/my-order')
+        } else {
+            handleLogOut()
+        }
+        setIsOpenPopup(false)
+    }
     const onSearch = (e) => {
         setSearch(e.target.value)
         dispatch(searchProduct(e.target.value))
@@ -66,8 +80,8 @@ function HeaderComponent({ isHiddenSearch = false, isHiddenCart = false }) {
                     <WrapperHeaderAccout>
                         {avatar ? <Image src={avatar} alt="avatar" style={{ width: '35px', height: '35px', borderRadius: '50%', objectFit: 'cover' }} />
                             : <UserOutlined style={{ fontSize: '35px' }} />}
-                        {user?.access_token ? <Popover trigger='click' content={content}>
-                            <div style={{ cursor: 'pointer', fontSize: '16px', fontWeight: '400' }}>{name.length ? name : user?.email}</div>
+                        {user?.access_token ? <Popover trigger='click' content={content} open={isOpenPopup}>
+                            <div style={{ cursor: 'pointer', fontSize: '16px', fontWeight: '400' }} onClick={() => setIsOpenPopup((prev) => !prev)}>{name.length ? name : user?.email}</div>
                         </Popover>
                             :
                             <div onClick={handleNavigateLogin} style={{ cursor: 'pointer' }}>

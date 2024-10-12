@@ -62,10 +62,12 @@ const PaymentPage = () => {
     }, [order])
     const discountPrice = useMemo(() => {
         const result = order?.selectedItemOrder?.reduce((total, cur) => {
-            return total + (cur?.discount * cur?.amount)
-        }, 0)
-        return (Number(result) && Number(result)) || 0
-    }, [order])
+            const discountAmount = (cur?.discount / 100 * cur?.price) // Tính số tiền giảm giá
+            return total + (discountAmount * cur?.amount); // Cộng dồn
+        }, 0);
+        return Number.isFinite(result) && result // Kiểm tra và trả giá trị
+    }, [order]);
+
     const deliveryPrice = useMemo(() => {
         if (provisional > 500000) {
             return 30000
@@ -225,7 +227,7 @@ const PaymentPage = () => {
                             <p style={{ fontSize: '12px', fontWeight: '500' }}>(Đã bao gồm VAT nếu có)</p>
                         </Col>
                     </Row>
-                    <ButtonComponent onClick={() => handleAddOrder()} style={{ marginTop: '20px', background: 'red', width: '100%', height: '40px' }} styleTextBtn={{ color: '#fff' }} textButton={'Đặt hàng'}></ButtonComponent>
+                    <ButtonComponent onClick={handleAddOrder} style={{ marginTop: '20px', background: 'red', width: '100%', height: '40px' }} styleTextBtn={{ color: '#fff' }} textButton={'Đặt hàng'}></ButtonComponent>
                 </Col>
             </Row >
             <ModalComponent forceRender title="Cap nhat thong tin user" open={isModalOpenDelete} onCancel={handleCancelUpdate} onOk={handleUpdateInfoUser}>
